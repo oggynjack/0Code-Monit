@@ -1,0 +1,104 @@
+name: Auto Release and Tag
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'wiki/**'
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.version_check.outputs.changed }}
+      version: ${{ steps.version_check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if version changed
+        id: version_check
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          git checkout HEAD~1 -- package.json 2>/dev/null || echo "First commit"
+          PREV_VERSION=$(node -p "require('./package.json').version" 2>/dev/null || echo "0.0.0")
+          git checkout HEAD -- package.json
+          
+          if [ "$CURRENT_VERSION" != "$PREV_VERSION" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Version changed from $PREV_VERSION to $CURRENT_VERSION"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "Version unchanged: $CURRENT_VERSION"
+          fi
+
+  build-and-release:
+    needs: check-version
+    if: needs.check-version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Create dist archive
+        run: |
+          cd dist
+          tar -czf ../dist.tar.gz .
+          cd ..
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          release_name: Release v${{ needs.check-version.outputs.version }}
+          body: |
+            ## 0Code Monit v${{ needs.check-version.outputs.version }}
+            
+            ### Changes
+            See the [commit history](https://github.com/${{ github.repository }}/commits/v${{ needs.check-version.outputs.version }}) for details.
+            
+            ### Installation
+            ```bash
+            docker run -d --restart=unless-stopped -p 3001:3001 -v 0code-monit:/app/data --name 0code-monit oggynjack/0code-monit:${{ needs.check-version.outputs.version }}
+            ```
+            
+            ### What's New
+            - Check the changelog for detailed information
+          draft: false
+          prerelease: ${{ contains(needs.check-version.outputs.version, 'beta') || contains(needs.check-version.outputs.version, 'alpha') }}
+
+      - name: Upload dist archive
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist.tar.gz
+          asset_name: dist.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Trigger Docker Build
+        if: success()
+        run: |
+          echo "Release created successfully!"
+          echo "Version: v${{ needs.check-version.outputs.version }}"
