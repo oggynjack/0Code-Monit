@@ -1,0 +1,34 @@
+# 0Code-Monit Cloudflare Tunnel Configuration
+# This configuration should be added to your Cloudflare Tunnel config.yaml
+# Usually located at: ~/.cloudflared/config.yaml or /etc/cloudflared/config.yaml
+
+# Tunnel name and credentials
+tunnel: 0code-monit
+credentials-file: /path/to/.cloudflared/TUNNEL_ID.json
+
+# Ingress routes
+ingress:
+  # 0Code-Monit monitoring service
+  - hostname: monit.0code.uk
+    service: http://localhost:4010
+    originRequest:
+      http2Origin: true
+      httpHostHeader: monit.0code.uk
+      connectTimeout: 30s
+      tlsTimeout: 10s
+      tcpKeepAlive: 30s
+      # No SSL verification needed as we're connecting to localhost
+      noTLSVerify: false
+
+  # Health check endpoint
+  - hostname: monit.0code.uk
+    path: /healthcheck
+    service: http://localhost:4010
+    originRequest:
+      httpHostHeader: monit.0code.uk
+
+  # Default catch-all
+  - service: http_status:404
+
+# Optional: Enable additional logging
+logLevel: info

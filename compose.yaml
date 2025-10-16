@@ -1,0 +1,9 @@
+services:
+  0code-monit:
+    image: oggynjack/0code-monit:1
+    volumes:
+      - ./data:/app/data
+    ports:
+      # <Host Port>:<Container Port>
+      - 3001:3001
+    restart: unless-stopped

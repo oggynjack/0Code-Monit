@@ -1,0 +1,30 @@
+## 0Code Monit reports `DOWN`, but the service can be accessed
+
+> [!TIP]
+> In case you did not know: docker has [more than one network type](https://youtu.be/bKFMS5C4CG0) with only some of them allowing access to the local network and some not even allowing access to remote networks
+
+If your 0Code Monit reports `DOWN` of your service, knowing if it is a bug of 0Code Monit / a docker network misconfiguration or a firewall is a good start to fixing the issue.
+
+To debug this, go into your container's bash via
+
+```bash
+docker exec -it 0code-monit bash
+```
+
+Install `curl`
+
+```bash
+apt update && apt --yes install curl
+```
+
+Then you can debug this issue with commands like `ping`, `curl`, ... Examples:
+
+```bash
+curl https://google.com
+ping google.com
+```
+
+### IPv6
+
+If you are running 0Code Monit on top of Docker and the service can only be access via IPv6. Please follow the Docker's [official wiki](https://docs.docker.com/config/daemon/ipv6/) to enable IPv6 support.\
+IPv6 are not supported out of the box on Docker.
