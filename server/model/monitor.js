@@ -750,6 +750,8 @@ class Monitor extends BeanModel {
                         options.httpsAgent = new https.Agent(
                             await DockerHost.getHttpsAgentOptions(dockerHost._dockerType, options.baseURL)
                         );
+                        // Ensure socketPath is not set for TCP connections
+                        delete options.socketPath;
                     }
 
                     log.debug("monitor", `[${this.name}] Axios Request`);

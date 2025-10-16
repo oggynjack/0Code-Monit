@@ -82,6 +82,8 @@ class DockerHost {
         } else if (dockerHost.dockerType === "tcp") {
             options.baseURL = DockerHost.patchDockerURL(dockerHost.dockerDaemon);
             options.httpsAgent = new https.Agent(await DockerHost.getHttpsAgentOptions(dockerHost.dockerType, options.baseURL));
+            // Ensure socketPath is not set for TCP connections
+            delete options.socketPath;
         }
 
         try {
