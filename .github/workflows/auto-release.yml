@@ -43,6 +43,8 @@ jobs:
     needs: check-version
     if: needs.check-version.outputs.should_release == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -64,38 +66,31 @@ jobs:
           cd ..
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ needs.check-version.outputs.version }}
-          release_name: Release v${{ needs.check-version.outputs.version }}
-          body: |
-            ## 0Code Monit v${{ needs.check-version.outputs.version }}
-            
-            ### Changes
-            See the [commit history](https://github.com/${{ github.repository }}/commits/v${{ needs.check-version.outputs.version }}) for details.
-            
-            ### Installation
-            ```bash
-            docker run -d --restart=unless-stopped -p 3001:3001 -v 0code-monit:/app/data --name 0code-monit oggynjack/0code-monit:${{ needs.check-version.outputs.version }}
-            ```
-            
-            ### What's New
-            - Check the changelog for detailed information
-          draft: false
-          prerelease: ${{ contains(needs.check-version.outputs.version, 'beta') || contains(needs.check-version.outputs.version, 'alpha') }}
-
-      - name: Upload dist archive
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist.tar.gz
-          asset_name: dist.tar.gz
-          asset_content_type: application/gzip
+          VERSION: ${{ needs.check-version.outputs.version }}
+        run: |
+          PRERELEASE=""
+          if [[ "$VERSION" == *"beta"* ]] || [[ "$VERSION" == *"alpha"* ]]; then
+            PRERELEASE="--prerelease"
+          fi
+          
+          gh release create "v${VERSION}" \
+            --title "Release v${VERSION}" \
+            --notes "## 0Code Monit v${VERSION}
+          
+          ### Changes
+          See the [commit history](https://github.com/${{ github.repository }}/commits/v${VERSION}) for details.
+          
+          ### Installation
+          \`\`\`bash
+          docker run -d --restart=unless-stopped -p 3001:3001 -v 0code-monit:/app/data --name 0code-monit oggynjack/0code-monit:${VERSION}
+          \`\`\`
+          
+          ### What's New
+          - Check the changelog for detailed information" \
+            dist.tar.gz \
+            $PRERELEASE
 
       - name: Trigger Docker Build
         if: success()
