@@ -1,4 +1,4 @@
-﻿# Core ignores
+# Core ignores
 node_modules
 .DS_Store
 dist
@@ -37,3 +37,36 @@ logo/
 
 # Embedded repos
 0Code-Monit/
+
+# Development and testing (keep locally, exclude from repo)
+extra/
+test/
+config/jest-backend.config.js
+config/playwright.config.js
+.eslintrc.js
+.stylelintrc
+.editorconfig
+
+# GitHub templates and configs (keep workflows only)
+.github/ISSUE_TEMPLATE/
+.github/PULL_REQUEST_TEMPLATE.md
+.github/REVIEW_GUIDELINES.md
+.github/config/
+.github/FUNDING.yml
+
+# Deployment-specific configs
+nginx-0code-monit.conf
+cloudflare-tunnel-config.yaml
+CNAME
+DEPLOYMENT.md
+
+# Development scripts
+start
+stop
+test-email.js
+
+# Docker development files
+docker/builder-go.dockerfile
+docker/debian-base.dockerfile
+docker/docker-compose-dev.yml
+docker/etc/
