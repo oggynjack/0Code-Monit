@@ -50,8 +50,8 @@
                     </div>
 
                     {{ $t("Don't know how to get the token? Please read the guide:") }}<br />
-                    <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy-with-Cloudflare-Tunnel" target="_blank">
-                        https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy-with-Cloudflare-Tunnel
+                    <a href="https://github.com/oggynjack/0Code-Monit/wiki/Troubleshooting" target="_blank">
+                        https://github.com/oggynjack/0Code-Monit/wiki/Troubleshooting
                     </a>
                 </div>
             </div>

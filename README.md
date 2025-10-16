@@ -1,194 +1,88 @@
 <div align="center" width="100%">
-    <img src="./public/monit-logo.png" width="128" alt="" />
+  <img src="public/icon-512x512.png" width="128" alt="0Code-Monit" />
 </div>
 
 # 0Code-Monit
 
-0Code-Monit is an easy-to-use self-hosted monitoring tool.
+> Self-hosted monitoring with beautiful status pages, fast UI, and rich notifications.
 
-<a target="_blank" href="https://github.com/oggynjack/0code-monit"><img src="https://img.shields.io/github/stars/oggynjack/0code-monit?style=flat" /></a> <a target="_blank" href="https://github.com/oggynjack/0code-monit"><img src="https://img.shields.io/github/last-commit/oggynjack/0code-monit" /></a>
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=600&size=24&pause=1200&color=00C2A8&center=true&vCenter=true&width=700&lines=Self-hosted+Monitoring;HTTP%2C+TCP%2C+Ping%2C+MQTT%2C+SMTP;Status+Pages+%26+Uptime+Charts;Powerful+Alerts+%26+Integrations" alt="typing" />
+</p>
 
-<img src="https://user-images.githubusercontent.com/1336778/212262296-e6205815-ad62-488c-83ec-a5b0d0689f7c.jpg" width="700" alt="" />
+<p align="center">
+  <a href="https://github.com/oggynjack/0Code-Monit"><img alt="Stars" src="https://img.shields.io/github/stars/oggynjack/0Code-Monit?style=flat" /></a>
+  <a href="https://github.com/oggynjack/0Code-Monit/releases"><img alt="Release" src="https://img.shields.io/github/v/release/oggynjack/0Code-Monit?include_prereleases&sort=semver" /></a>
+  <a href="https://github.com/oggynjack/0Code-Monit/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/oggynjack/0Code-Monit/auto-release.yml?branch=main&label=auto-release" /></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/oggynjack/0Code-Monit" /></a>
+</p>
 
-## 🥔 Live Demo
-
-Try it!
-
-Demo Server (Location: Frankfurt - Germany): <https://demo.0codemonit.com/start-demo>
-
-It is a temporary live demo, all data will be deleted after 10 minutes. Sponsored by [0Code Monit Community](https://github.com/oggynjack/0code-monit#%EF%B8%8F-sponsors).
+<p align="center">
+  <img alt="200 OK" src="https://img.shields.io/badge/HTTP-200%20OK-2ea44f?labelColor=1b1f23" />
+  <img alt="404" src="https://img.shields.io/badge/HTTP-404-ffcc00?labelColor=1b1f23" />
+  <img alt="500" src="https://img.shields.io/badge/HTTP-500-ea4a5a?labelColor=1b1f23" />
+  <img alt="PING" src="https://img.shields.io/badge/PING-live-00c2a8?labelColor=1b1f23&logo=sonarcloud&logoColor=white" />
+</p>
 
 ## ⭐ Features
 
-- Monitoring uptime for HTTP(s) / TCP / HTTP(s) Keyword / HTTP(s) Json Query / Ping / DNS Record / Push / Steam Game Server / Docker Containers
-- Fancy, Reactive, Fast UI/UX
-- Notifications via Telegram, Discord, Gotify, Slack, Pushover, Email (SMTP), and [90+ notification services, click here for the full list](https://github.com/oggynjack/0code-monit/tree/master/src/components/notifications)
+- HTTP(S) / TCP / Keyword / JSON Query / Ping / DNS / Push / Steam game server / Docker containers
+- Beautiful, reactive UI/UX with charts and dark mode
+- 90+ Notification providers (Telegram, Discord, Slack, Email/SMTP, etc.)
 - 20-second intervals
-- [Multi Languages](https://github.com/oggynjack/0code-monit/tree/master/src/lang)
-- Multiple status pages
-- Map status pages to specific domains
-- Ping chart
-- Certificate info
-- Proxy support
-- 2FA support
+- Multi-language support
+- Multiple status pages and custom domains
+- SSL certificate info, proxy support, and 2FA
 
-## 🔧 How to Install
+## 🔧 Quick Start
 
 ### 🐳 Docker
 
-```bash
-git clone https://github.com/oggynjack/0code-monit.git
-cd 0code-monit
-npm run setup
-node server/server.js
+```bash path=null start=null
+docker run -d --restart=unless-stopped \
+  -p 3001:3001 \
+  -v 0code-monit:/app/data \
+  --name 0code-monit \
+  oggynjack/0code-monit:1.0.1
 ```
 
-0Code-Monit is now running on <http://localhost:3001>.
+> File systems like NFS are not supported for the data volume. Use a local path or Docker volume.
 
-> [!WARNING]
-> File Systems like **NFS** (Network File System) are **NOT** supported. Please map to a local directory or volume.
+### 💪 Non-Docker
 
-> [!NOTE]
-> If you want to limit exposure to localhost (without exposing port for other users or to use a [reverse proxy](https://github.com/oggynjack/0code-monit/wiki/Reverse-Proxy)), you can expose the port like this:
->
-> ```bash
-> docker run -d --restart=always -p 127.0.0.1:3001:3001 -v 0code-monit:/app/data --name 0code-monit oggynjack/0code-monit:1
-> ```
+Requirements: Node.js 20, npm 9, Git, PM2 (recommended)
 
-### 💪🏻 Non-Docker
-
-Requirements:
-
-- Platform
-  - ✅ Major Linux distros such as Debian, Ubuntu, CentOS, Fedora and ArchLinux etc.
-  - ✅ Windows 10 (x64), Windows Server 2012 R2 (x64) or higher
-  - ❌ FreeBSD / OpenBSD / NetBSD
-  - ❌ Replit / Heroku
-- [Node.js](https://nodejs.org/en/download/) 18 / 20.4
-- [npm](https://docs.npmjs.com/cli/) 9
-- [Git](https://git-scm.com/downloads)
-- [pm2](https://pm2.keymetrics.io/) - For running 0Code Monit in the background
-
-```bash
-git clone https://github.com/oggynjack/0code-monit.git
-cd 0code-monit
+```bash path=null start=null
+git clone https://github.com/oggynjack/0Code-Monit.git
+cd 0Code-Monit
 npm run setup
-
-# Option 1. Try it
+# Try it
 node server/server.js
-
-# (Recommended) Option 2. Run in the background using PM2
-# Install PM2 if you don't have it:
-npm install pm2 -g && pm2 install pm2-logrotate
-
-# Start Server
+# Or run in background with PM2
+npm i -g pm2 && pm2 install pm2-logrotate
 pm2 start server/server.js --name 0code-monit
 ```
 
-0Code-Monit is now running on <http://localhost:3001>
+0Code-Monit will be available at http://localhost:3001
 
-More useful PM2 Commands
-
-```bash
-# If you want to see the current console output
-pm2 monit
-
-# If you want to add it to startup
-pm2 startup && pm2 save
-```
-
-### Advanced Installation
-
-If you need more options or need to browse via a reverse proxy, please read:
-
-<https://github.com/oggynjack/0code-monit/wiki/%F0%9F%94%A7-How-to-Install>
-
-## 🆙 How to Update
-
-Please read:
-
-<https://github.com/oggynjack/0code-monit/wiki/%F0%9F%86%99-How-to-Update>
-
-## 🆕 What's Next?
-
-I will assign requests/issues to the next milestone.
-
-<https://github.com/oggynjack/0code-monit/milestones>
-
-## ❤️ Sponsors
-
-Thank you so much! (GitHub Sponsors will be updated manually. OpenCollective sponsors will be updated automatically, the list will be cached by GitHub though. It may need some time to be updated)
-
-<img src="https://0codemonit.com/sponsors?v=6" alt />
-
-## 🖼 More Screenshots
+## 📸 Screenshots
 
 Light Mode:
 
-<img src="https://0codemonit.com/img/light.jpg" width="512" alt="" />
+![Dashboard](https://github.com/user-attachments/assets/76e47ac9-fb5d-4961-8cd8-9137ab80fcaf)
 
 Status Page:
 
-<img src="https://user-images.githubusercontent.com/1336778/134628766-a3fe0981-0926-4285-ab46-891a21c3e4cb.png" width="512" alt="" />
+![Status Page](https://github.com/user-attachments/assets/35edf031-f502-4f68-bffc-1b51b06aef01)
 
-Settings Page:
+Settings:
 
-<img src="https://0codemonit.com/img/settings.jpg" width="400" alt="" />
+![Settings](https://github.com/user-attachments/assets/dee407b6-a63d-4eaf-a8e2-ecf588b19c9a)
 
-Telegram Notification Sample:
+## 🌐 Translations
 
-<img src="https://0codemonit.com/img/telegram.jpg" width="400" alt="" />
+Want to translate? See [src/lang/README.md](src/lang/README.md).
 
-## Motivation
+## ✍️ Spelling & Grammar
 
-- I was looking for a self-hosted monitoring tool like "Uptime Robot", but it is hard to find a suitable one. One of the closest ones is statping. Unfortunately, it is not stable and no longer maintained.
-- Wanted to build a fancy UI.
-- Learn Vue 3 and vite.js.
-- Show the power of Bootstrap 5.
-- Try to use WebSocket with SPA instead of a REST API.
-- Deploy my first Docker image to Docker Hub.
-
-If you love this project, please consider giving it a ⭐.
-
-## 🗣️ Discussion / Ask for Help
-
-⚠️ For any general or technical questions, please don't send me an email, as I am unable to provide support in that manner. I will not respond if you ask questions there.
-
-I recommend using Google, GitHub Issues, or 0Code Monit's subreddit for finding answers to your question. If you cannot find the information you need, feel free to ask:
-
-- [GitHub Issues](https://github.com/oggynjack/0code-monit/issues)
-- [Subreddit (r/0CodeMonit)](https://www.reddit.com/r/0CodeMonit/)
-
-My Reddit account: [u/oggynjack](https://reddit.com/u/oggynjack)
-You can mention me if you ask a question on the subreddit.
-
-## Contributions
-
-### Create Pull Requests
-
-We DO NOT accept all types of pull requests and do not want to waste your time. Please be sure that you have read and follow pull request rules:
-[CONTRIBUTING.md#can-i-create-a-pull-request-for-0code-monit](https://github.com/oggynjack/0code-monit/blob/master/CONTRIBUTING.md#can-i-create-a-pull-request-for-0code-monit)
-
-### Test Pull Requests
-
-There are a lot of pull requests right now, but I don't have time to test them all.
-
-If you want to help, you can check this:
-<https://github.com/oggynjack/0code-monit/wiki/Test-Pull-Requests>
-
-### Test Beta Version
-
-Check out the latest beta release here: <https://github.com/oggynjack/0code-monit/releases>
-
-### Bug Reports / Feature Requests
-
-If you want to report a bug or request a new feature, feel free to open a [new issue](https://github.com/oggynjack/0code-monit/issues).
-
-### Translations
-
-If you want to translate 0Code Monit into your language, please visit [Weblate Readme](https://github.com/oggynjack/0code-monit/blob/master/src/lang/README.md).
-
-### Spelling & Grammar
-
-Feel free to correct the grammar in the documentation or code.
-My mother language is not English and my grammar is not that great.
+PRs improving documentation wording are welcome.
