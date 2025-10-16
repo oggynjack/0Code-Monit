@@ -89,7 +89,7 @@
         <h4 class="mt-4">{{ $t("Other Software") }}</h4>
         <div>
             {{ $t("For example: nginx, Apache and Traefik.") }} <br />
-            {{ $t("Please read") }} <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy" target="_blank">https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy</a>.
+            {{ $t("Please read") }} <a href="https://github.com/oggynjack/0Code-Monit/wiki/Reverse-Proxy" target="_blank">https://github.com/oggynjack/0Code-Monit/wiki/Reverse-Proxy</a>.
         </div>
 
         <h4 class="my-4">{{ $t("HTTP Headers") }}</h4>

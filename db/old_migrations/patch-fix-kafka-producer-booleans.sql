@@ -15,7 +15,7 @@ ALTER TABLE monitor
 ALTER TABLE monitor
     ADD COLUMN kafka_producer_allow_auto_topic_creation BOOLEAN default 0 NOT NULL;
 
--- These SQL is still not fully safe. See https://github.com/louislam/uptime-kuma/issues/4039.
+-- These SQL is still not fully safe. See https://github.com/oggynjack/0Code-Monit/issues/4039.
 
 -- Set bring old values from `_old` COLUMNs to correct ones
 -- UPDATE monitor SET kafka_producer_allow_auto_topic_creation = monitor.kafka_producer_allow_auto_topic_creation_old
