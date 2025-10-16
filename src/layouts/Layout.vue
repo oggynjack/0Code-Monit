@@ -4,7 +4,7 @@
             <div class="container-fluid">
                 {{ $root.connectionErrorMsg }}
                 <div v-if="$root.showReverseProxyGuide">
-                    {{ $t("Using a Reverse Proxy?") }} <a href="https://github.com/oggynjack/0code-monit/wiki/Reverse-Proxy" target="_blank">{{ $t("Check how to config it for WebSocket") }}</a>
+                    {{ $t("Using a Reverse Proxy?") }} <a href="https://github.com/oggynjack/0Code-Monit/wiki/Reverse-Proxy" target="_blank">{{ $t("Check how to config it for WebSocket") }}</a>
                 </div>
             </div>
         </div>
@@ -16,7 +16,7 @@
                 <span class="fs-4 title">{{ $t("0Code-Monit") }}</span>
             </router-link>
 
-            <a v-if="hasNewVersion" target="_blank" href="https://github.com/oggynjack/0code-monit/releases" class="btn btn-primary me-3">
+            <a v-if="hasNewVersion" target="_blank" href="https://github.com/oggynjack/0Code-Monit/releases" class="btn btn-primary me-3">
                 <font-awesome-icon icon="arrow-alt-circle-up" /> {{ $t("New Update") }}
             </a>
 

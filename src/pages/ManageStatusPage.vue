@@ -67,7 +67,7 @@ export default {
          * @returns {string} Correctly formatted path including port numbers
          */
         icon(icon) {
-            if (icon === "/icon.svg") {
+            if (icon && icon.startsWith("/")) {
                 return icon;
             } else {
                 return getResBaseURL() + icon;

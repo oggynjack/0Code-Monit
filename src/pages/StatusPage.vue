@@ -340,7 +340,7 @@
                 <div v-if="! enableEditMode" class="alert-heading p-2" data-testid="footer-text" v-html="footerHTML"></div>
 
                 <p v-if="config.showPoweredBy" data-testid="powered-by">
-                    {{ $t("Powered by") }} <a target="_blank" rel="noopener noreferrer" href="https://github.com/louislam/uptime-kuma">{{ $t("Uptime Kuma" ) }}</a>
+                    {{ $t("Powered by") }} <a target="_blank" rel="noopener noreferrer" href="https://github.com/oggynjack/0Code-Monit">0Code-Monit</a>
                 </p>
 
                 <div class="refresh-info mb-2">
@@ -441,7 +441,7 @@ export default {
             incident: null,
             previousIncident: null,
             showImageCropUpload: false,
-            imgDataUrl: "/icon.svg",
+            imgDataUrl: "/icon.png",
             loadedTheme: false,
             loadedData: false,
             baseURL: "",

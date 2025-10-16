@@ -1,3 +1,0 @@
-- [Home](https://github.com/oggynjack/0code-monit/wiki)
-- [Troubleshooting](https://github.com/oggynjack/0code-monit/wiki/Troubleshooting)
-- [Environment Variables](https://github.com/oggynjack/0code-monit/wiki/Environment-Variables)
