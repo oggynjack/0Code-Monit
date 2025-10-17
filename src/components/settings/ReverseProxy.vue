@@ -56,8 +56,16 @@
                 </div>
             </div>
 
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input id="cf-disable" class="form-check-input" type="checkbox" :checked="disabled" @change="onToggleDisabled($event)" />
+                    <label class="form-check-label" for="cf-disable">Disable Cloudflare Proxy (persistent)</label>
+                </div>
+                <div class="form-text">When disabled, the tunnel will not auto-start after restart. To use again, uncheck and start manually.</div>
+            </div>
+
             <div>
-                <button v-if="!running" class="btn btn-primary" type="submit" @click="start">
+                <button v-if="!running" class="btn btn-primary" type="submit" :disabled="disabled" @click="start">
                     {{ $t("Start") }} cloudflared
                 </button>
 
@@ -181,6 +189,21 @@ export default {
          */
         start() {
             this.$root.getSocket().emit(prefix + "start", this.cloudflareTunnelToken);
+        },
+        /**
+         * Toggle persistent disable flag
+         * @param {Event} e change event
+         * @returns {void}
+         */
+        onToggleDisabled(e) {
+            const val = !!e.target.checked;
+            this.$root.getSocket().emit(prefix + "setDisabled", val, (res) => {
+                if (res && !res.ok) {
+                    this.$root.toastError(res.msg || "Failed");
+                } else {
+                    this.$root.toastSuccess(val ? "Cloudflare proxy disabled" : "Cloudflare proxy enabled");
+                }
+            });
         },
         /**
          * Stop the Cloudflare tunnel

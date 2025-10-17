@@ -57,6 +57,7 @@ export default {
                 cloudflareTunnelToken: "",
                 installed: null,
                 running: false,
+                disabled: false,
                 message: "",
                 errorMessage: "",
                 currentPassword: "",
@@ -299,6 +300,7 @@ export default {
             socket.on("cloudflared_message", (res) => this.cloudflared.message = res);
             socket.on("cloudflared_errorMessage", (res) => this.cloudflared.errorMessage = res);
             socket.on("cloudflared_token", (res) => this.cloudflared.cloudflareTunnelToken = res);
+            socket.on("cloudflared_disabled", (res) => this.cloudflared.disabled = !!res);
 
             socket.on("initServerTimezone", () => {
                 socket.emit("initServerTimezone", dayjs.tz.guess());
