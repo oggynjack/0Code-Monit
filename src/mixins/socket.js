@@ -63,6 +63,10 @@ export default {
             },
             faviconUpdateDebounce: null,
             emitter: mitt(),
+            analytics: {
+                events: [],
+                online: 0,
+            },
         };
     },
 
@@ -248,6 +252,17 @@ export default {
 
             socket.on("certInfo", (monitorID, data) => {
                 this.tlsInfoList[monitorID] = JSON.parse(data);
+            });
+
+            // Live analytics
+            socket.on("analyticsEvent", (evt) => {
+                this.analytics.events.unshift(evt);
+                if (this.analytics.events.length > 200) {
+                    this.analytics.events.pop();
+                }
+            });
+            socket.on("analyticsOnline", ({ online }) => {
+                this.analytics.online = online || 0;
             });
 
             socket.on("connect_error", (err) => {

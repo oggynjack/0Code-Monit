@@ -31,6 +31,11 @@
                         <font-awesome-icon icon="tachometer-alt" /> {{ $t("Dashboard") }}
                     </router-link>
                 </li>
+                <li v-if="$root.loggedIn" class="nav-item me-2">
+                    <router-link to="/live" class="nav-link">
+                        <font-awesome-icon icon="play" /> Live
+                    </router-link>
+                </li>
                 <li v-if="$root.loggedIn" class="nav-item">
                     <div class="dropdown dropdown-profile-pic">
                         <div class="nav-link" data-bs-toggle="dropdown">

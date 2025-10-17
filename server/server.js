@@ -309,6 +309,10 @@ let needSetup = false;
     const apiRouter = require("./routers/api-router");
     app.use(apiRouter);
 
+    // Analytics Router
+    const analyticsRouter = require("./routers/analytics-router");
+    app.use(analyticsRouter);
+
     // Status Page Router
     const statusPageRouter = require("./routers/status-page-router");
     app.use(statusPageRouter);
@@ -1891,7 +1895,7 @@ gracefulShutdown(server.httpServer, {
 // Catch unexpected errors here
 let unexpectedErrorHandler = (error, promise) => {
     console.trace(error);
-    UptimeKumaServer.errorLog(error, false);
+    CodeMonitServer.errorLog(error, false);
     console.error("If you keep encountering errors, please report to https://github.com/oggynjack/0Code-Monit/issues");
 };
 process.addListener("unhandledRejection", unexpectedErrorHandler);
