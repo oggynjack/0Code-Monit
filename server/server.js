@@ -218,7 +218,16 @@ let needSetup = false;
             await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
 
         } else if (uptimeKumaEntryPage && uptimeKumaEntryPage.startsWith("statusPage-")) {
-            response.redirect("/status/" + uptimeKumaEntryPage.replace("statusPage-", ""));
+            let basePath = await Settings.get("statusPageBasePath") || "/status";
+            // Normalize: ensure starts with / and doesn't end with /
+            basePath = basePath.trim();
+            if (!basePath.startsWith("/")) {
+                basePath = "/" + basePath;
+            }
+            if (basePath.endsWith("/")) {
+                basePath = basePath.slice(0, -1);
+            }
+            response.redirect(basePath + "/" + uptimeKumaEntryPage.replace("statusPage-", ""));
 
         } else {
             response.redirect("/dashboard");

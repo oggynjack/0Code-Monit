@@ -6,7 +6,7 @@
                 <div class="my-3">
                     <label for="slug" class="form-label">{{ $t("Slug") }}</label>
                     <div class="input-group">
-                        <span id="basic-addon3" class="input-group-text">/status/</span>
+                        <span id="basic-addon3" class="input-group-text">{{ statusPageBasePath }}/</span>
                         <input id="slug" v-model="config.slug" type="text" class="form-control">
                     </div>
                 </div>
@@ -574,6 +574,11 @@ export default {
             return this.overallStatus === STATUS_PAGE_ALL_DOWN;
         },
 
+        statusPageBasePath() {
+            // Get from server info or default to /status
+            return this.$root.info.statusPageBasePath || "/status";
+        },
+
         isMaintenance() {
             return this.overallStatus === STATUS_PAGE_MAINTENANCE;
         },
@@ -862,7 +867,7 @@ export default {
 
                     setTimeout(() => {
                         this.loading = false;
-                        location.href = "/status/" + this.config.slug;
+                        location.href = this.statusPageBasePath + "/" + this.config.slug;
                     }, time);
 
                 } else {
@@ -934,7 +939,7 @@ export default {
          * @returns {void}
          */
         discard() {
-            location.href = "/status/" + this.slug;
+            location.href = this.statusPageBasePath + "/" + this.slug;
         },
 
         /**

@@ -7,6 +7,7 @@ const googleAnalytics = require("../google-analytics");
 const { marked } = require("marked");
 const { Feed } = require("feed");
 const config = require("../config");
+const { Settings } = require("../settings");
 
 const { STATUS_PAGE_ALL_DOWN, STATUS_PAGE_ALL_UP, STATUS_PAGE_MAINTENANCE, STATUS_PAGE_PARTIAL_DOWN, UP, MAINTENANCE, DOWN } = require("../../src/util");
 
@@ -17,6 +18,12 @@ class StatusPage extends BeanModel {
      * @type {{}}
      */
     static domainMappingList = { };
+
+    /**
+     * Status page base path from settings
+     * @type {string}
+     */
+    static statusPageBasePath = "/status";
 
     /**
      * Handle responses to RSS pages
@@ -70,8 +77,17 @@ class StatusPage extends BeanModel {
     static async renderRSS(statusPage, slug) {
         const { heartbeats, statusDescription } = await StatusPage.getRSSPageData(statusPage);
 
+        let basePath = await Settings.get("statusPageBasePath") || "/status";
+        basePath = basePath.trim();
+        if (!basePath.startsWith("/")) {
+            basePath = "/" + basePath;
+        }
+        if (basePath.endsWith("/")) {
+            basePath = basePath.slice(0, -1);
+        }
+
         let proto = config.isSSL ? "https" : "http";
-        let host = `${proto}://${config.hostname || "localhost"}:${config.port}/status/${slug}`;
+        let host = `${proto}://${config.hostname || "localhost"}:${config.port}${basePath}/${slug}`;
 
         const feed = new Feed({
             title: "uptime kuma rss feed",

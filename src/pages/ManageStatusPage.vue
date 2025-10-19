@@ -16,11 +16,11 @@
                     </span>
 
                     <!-- use <a> instead of <router-link>, because the heartbeat won't load. -->
-                    <a v-for="statusPage in $root.statusPageList" :key="statusPage.slug" :href="'/status/' + statusPage.slug" class="item">
+                    <a v-for="statusPage in $root.statusPageList" :key="statusPage.slug" :href="statusPageBasePath + '/' + statusPage.slug" class="item">
                         <img :src="icon(statusPage.icon)" alt class="logo me-2" />
                         <div class="info">
                             <div class="title">{{ statusPage.title }}</div>
-                            <div class="slug">/status/{{ statusPage.slug }}</div>
+                            <div class="slug">{{ statusPageBasePath }}/{{ statusPage.slug }}</div>
                         </div>
                         <div class="actions">
                             <button class="btn btn-danger delete-status-page" @click.stop.prevent="deleteDialog(statusPage.slug)">
@@ -55,7 +55,10 @@ export default {
         };
     },
     computed: {
-
+        statusPageBasePath() {
+            // Get from server info or default to /status
+            return this.$root.info.statusPageBasePath || "/status";
+        },
     },
     mounted() {
 

@@ -7,33 +7,92 @@ const { R } = require("redbean-node");
 const { badgeConstants } = require("../../src/util");
 const { makeBadge } = require("badge-maker");
 const { UptimeCalculator } = require("../uptime-calculator");
+const { Settings } = require("../settings");
 
 let router = express.Router();
 
 let cache = apicache.middleware;
 const server = UptimeKumaServer.getInstance();
 
-router.get("/status/:slug", cache("5 minutes"), async (request, response) => {
-    let slug = request.params.slug;
-    slug = slug.toLowerCase();
-    await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
-});
+/**
+ * Normalize path by ensuring it starts with / and doesn't end with /
+ * @param {string} path - The path to normalize
+ * @returns {string} Normalized path
+ */
+function normalizePath(path) {
+    if (!path || path === "/") {
+        return "";
+    }
+    path = path.trim();
+    if (!path.startsWith("/")) {
+        path = "/" + path;
+    }
+    if (path.endsWith("/")) {
+        path = path.slice(0, -1);
+    }
+    return path;
+}
 
-router.get("/status/:slug/rss", cache("5 minutes"), async (request, response) => {
-    let slug = request.params.slug;
-    slug = slug.toLowerCase();
-    await StatusPage.handleStatusPageRSSResponse(response, slug);
-});
+/**
+ * Register status page routes with the given base path
+ * @param {string} basePath - Base path for status pages (e.g., "/status", "/custom", or "" for root)
+ */
+function registerStatusPageRoutes(basePath) {
+    basePath = normalizePath(basePath);
 
-router.get("/status", cache("5 minutes"), async (request, response) => {
-    let slug = "default";
-    await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
-});
+    // Route: /:slug
+    router.get(`${basePath}/:slug`, cache("5 minutes"), async (request, response) => {
+        let slug = request.params.slug;
+        slug = slug.toLowerCase();
+        await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
+    });
 
-router.get("/status-page", cache("5 minutes"), async (request, response) => {
-    let slug = "default";
-    await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
-});
+    // Route: /:slug/rss
+    router.get(`${basePath}/:slug/rss`, cache("5 minutes"), async (request, response) => {
+        let slug = request.params.slug;
+        slug = slug.toLowerCase();
+        await StatusPage.handleStatusPageRSSResponse(response, slug);
+    });
+
+    // Route: base path alone (default status page)
+    if (basePath) {
+        router.get(basePath, cache("5 minutes"), async (request, response) => {
+            let slug = "default";
+            await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
+        });
+    }
+}
+
+/**
+ * Initialize router with base path from settings
+ */
+async function initializeRouter() {
+    let basePath = await Settings.get("statusPageBasePath");
+    if (!basePath) {
+        basePath = "/status"; // default
+    }
+    basePath = normalizePath(basePath);
+    
+    // Store for use in manifest generation
+    StatusPage.statusPageBasePath = basePath;
+    
+    // Register routes with configured base path
+    registerStatusPageRoutes(basePath);
+    
+    // Always keep legacy /status routes for backwards compatibility
+    if (basePath !== "/status") {
+        registerStatusPageRoutes("/status");
+    }
+    
+    // Legacy /status-page route
+    router.get("/status-page", cache("5 minutes"), async (request, response) => {
+        let slug = "default";
+        await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
+    });
+}
+
+// Initialize routes (will be called after settings are loaded)
+initializeRouter();
 
 // Status page config, incident, monitor list
 router.get("/api/status-page/:slug", cache("5 minutes"), async (request, response) => {
@@ -128,10 +187,14 @@ router.get("/api/status-page/:slug/manifest.json", cache("1440 minutes"), async 
             return;
         }
 
+        // Get base path from settings or use default
+        let basePath = await Settings.get("statusPageBasePath") || "/status";
+        basePath = normalizePath(basePath);
+        
         // Response
         response.json({
             "name": statusPage.title,
-            "start_url": "/status/" + statusPage.slug,
+            "start_url": basePath + "/" + statusPage.slug,
             "display": "standalone",
             "icons": [
                 {

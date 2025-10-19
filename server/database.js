@@ -238,8 +238,14 @@ class Database {
                 fs.copyFileSync(Database.templatePath, Database.sqlitePath);
             }
 
-            const Dialect = require("knex/lib/dialects/sqlite3/index.js");
-            Dialect.prototype._driver = () => require("@louislam/sqlite3");
+const Dialect = require("knex/lib/dialects/sqlite3/index.js");
+Dialect.prototype._driver = () => {
+    try {
+        return require("@oggynjack/sqlite3");
+    } catch (e) {
+        return require("@louislam/sqlite3");
+    }
+};
 
             config = {
                 client: Dialect,

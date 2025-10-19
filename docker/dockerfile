@@ -1,16 +1,16 @@
-ARG BASE_IMAGE=louislam/uptime-kuma:base2
+ARG BASE_IMAGE=oggynjack/0code-monit:base2
 
 ############################################
 # Build in Golang
 # Run npm run build-healthcheck-armv7 in the host first, otherwise it will be super slow where it is building the armv7 healthcheck
 # Check file: builder-go.dockerfile
 ############################################
-FROM louislam/uptime-kuma:builder-go AS build_healthcheck
+FROM oggynjack/0code-monit:builder-go AS build_healthcheck
 
 ############################################
 # Build in Node.js
 ############################################
-FROM louislam/uptime-kuma:base2 AS build
+FROM oggynjack/0code-monit:base2 AS build
 USER node
 WORKDIR /app
 
@@ -59,7 +59,7 @@ USER node
 ############################################
 # Build an image for testing pr
 ############################################
-FROM louislam/uptime-kuma:base2 AS pr-test2
+FROM oggynjack/0code-monit:base2 AS pr-test2
 WORKDIR /app
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 
@@ -92,7 +92,7 @@ CMD ["npm", "run", "start-pr-test"]
 ############################################
 # Upload the artifact to Github
 ############################################
-FROM louislam/uptime-kuma:base2 AS upload-artifact
+FROM oggynjack/0code-monit:base2 AS upload-artifact
 WORKDIR /
 RUN apt update && \
     apt --yes install curl file
@@ -110,9 +110,9 @@ RUN chmod +x /app/extra/upload-github-release-asset.sh
 
 # Full Build
 # RUN tar -zcvf $FILE app
-# RUN /app/extra/upload-github-release-asset.sh github_api_token=$GITHUB_TOKEN owner=louislam repo=uptime-kuma tag=$VERSION filename=$FILE
+# RUN /app/extra/upload-github-release-asset.sh github_api_token=$GITHUB_TOKEN owner=oggynjack repo=0code-monit tag=$VERSION filename=$FILE
 
 # Dist only
 RUN cd /app && tar -zcvf $DIST dist
-RUN /app/extra/upload-github-release-asset.sh github_api_token=$GITHUB_TOKEN owner=louislam repo=uptime-kuma tag=$VERSION filename=/app/$DIST
+RUN /app/extra/upload-github-release-asset.sh github_api_token=$GITHUB_TOKEN owner=oggynjack repo=0code-monit tag=$VERSION filename=/app/$DIST
 

@@ -214,6 +214,8 @@
     "Avg. Ping": "Avg. Ping",
     "Avg. Response": "Avg. Response",
     "Entry Page": "Entry Page",
+    "Status Page Base Path": "Status Page Base Path",
+    "statusPageBasePathHelp": "Customize the URL path prefix for your status pages. For example, use '/status' for URLs like '/status/my-page', or use an empty value to place pages at the root level like '/my-page'.",
     "statusPageNothing": "Nothing here, please add a group or a monitor.",
     "statusPageRefreshIn": "Refresh in: {0}",
     "No Services": "No Services",

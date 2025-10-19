@@ -132,6 +132,24 @@
                 <div class="form-text"></div>
             </div>
 
+            <!-- Status Page Base Path -->
+            <div class="mb-4">
+                <label class="form-label" for="statusPageBasePath">
+                    {{ $t("Status Page Base Path") }}
+                </label>
+                <input
+                    id="statusPageBasePath"
+                    v-model="settings.statusPageBasePath"
+                    class="form-control"
+                    name="statusPageBasePath"
+                    placeholder="/status"
+                    autocomplete="off"
+                />
+                <div class="form-text">
+                    {{ $t("statusPageBasePathHelp") }}
+                </div>
+            </div>
+
             <!-- Steam API Key -->
             <div class="mb-4">
                 <label class="form-label" for="steamAPIKey">
