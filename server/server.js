@@ -719,11 +719,15 @@ let needSetup = false;
                 let notificationIDList = monitor.notificationIDList;
                 delete monitor.notificationIDList;
 
-                // Ensure status code ranges are strings
-                if (!monitor.accepted_statuscodes.every((code) => typeof code === "string")) {
-                    throw new Error("Accepted status codes are not all strings");
+                // Ensure status code ranges are strings (only for monitors that use status codes)
+                if (monitor.accepted_statuscodes && monitor.accepted_statuscodes.length > 0) {
+                    if (!monitor.accepted_statuscodes.every((code) => typeof code === "string")) {
+                        throw new Error("Accepted status codes are not all strings");
+                    }
+                    monitor.accepted_statuscodes_json = JSON.stringify(monitor.accepted_statuscodes);
+                } else {
+                    monitor.accepted_statuscodes_json = JSON.stringify([]);
                 }
-                monitor.accepted_statuscodes_json = JSON.stringify(monitor.accepted_statuscodes);
                 delete monitor.accepted_statuscodes;
 
                 monitor.kafkaProducerBrokers = JSON.stringify(monitor.kafkaProducerBrokers);
@@ -804,9 +808,11 @@ let needSetup = false;
                     removeGroupChildren = true;
                 }
 
-                // Ensure status code ranges are strings
-                if (!monitor.accepted_statuscodes.every((code) => typeof code === "string")) {
-                    throw new Error("Accepted status codes are not all strings");
+                // Ensure status code ranges are strings (only for monitors that use status codes)
+                if (monitor.accepted_statuscodes && monitor.accepted_statuscodes.length > 0) {
+                    if (!monitor.accepted_statuscodes.every((code) => typeof code === "string")) {
+                        throw new Error("Accepted status codes are not all strings");
+                    }
                 }
 
                 bean.name = monitor.name;
@@ -903,6 +909,7 @@ let needSetup = false;
                 bean.rabbitmqPassword = monitor.rabbitmqPassword;
                 bean.conditions = JSON.stringify(monitor.conditions);
                 bean.manual_status = monitor.manual_status;
+                bean.discordBotToken = monitor.discordBotToken;
 
                 // ping advanced options
                 bean.ping_numeric = monitor.ping_numeric;
