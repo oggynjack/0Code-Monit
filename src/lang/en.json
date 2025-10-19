@@ -188,6 +188,8 @@
     "Active": "Active",
     "Inactive": "Inactive",
     "Token": "Token",
+    "Discord Bot Token": "Discord Bot Token",
+    "discordBotTokenDescription": "Enter your Discord bot token. You can get this from Discord Developer Portal > Applications > Your Bot > Bot > Token",
     "Show URI": "Show URI",
     "Tags": "Tags",
     "Add New Tag": "Add New Tag",

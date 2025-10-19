@@ -97,6 +97,9 @@
                                         <option v-if="!$root.info.isContainer" value="tailscale-ping">
                                             Tailscale Ping
                                         </option>
+                                        <option value="discord">
+                                            Discord Bot
+                                        </option>
                                     </optgroup>
                                 </select>
                                 <i18n-t v-if="monitor.type === 'rabbitmq'" keypath="rabbitmqHelpText" tag="div" class="form-text">
@@ -567,6 +570,17 @@
                                 </div>
                             </template>
 
+                            <!-- Discord Bot -->
+                            <template v-if="monitor.type === 'discord'">
+                                <div class="my-3">
+                                    <label for="discordBotToken" class="form-label">{{ $t("Discord Bot Token") }}</label>
+                                    <HiddenInput id="discordBotToken" v-model="monitor.discordBotToken" autocomplete="false" required></HiddenInput>
+                                    <div class="form-text">
+                                        {{ $t("discordBotTokenDescription") }}
+                                    </div>
+                                </div>
+                            </template>
+
                             <!-- SQL Server / PostgreSQL / MySQL / Redis / MongoDB -->
                             <template v-if="monitor.type === 'sqlserver' || monitor.type === 'postgres' || monitor.type === 'mysql' || monitor.type === 'redis' || monitor.type === 'mongodb'">
                                 <div class="my-3">
@@ -650,8 +664,8 @@
                                 <input id="retry-interval" v-model="monitor.retryInterval" type="number" class="form-control" required :min="minInterval" step="1">
                             </div>
 
-                            <!-- Timeout: HTTP / JSON query / Keyword / Ping / RabbitMQ / SNMP only -->
-                            <div v-if="monitor.type === 'http' || monitor.type === 'json-query' || monitor.type === 'keyword' || monitor.type === 'ping' || monitor.type === 'rabbitmq' || monitor.type === 'snmp'" class="my-3">
+            <!-- Timeout: HTTP / JSON query / Keyword / Ping / RabbitMQ / SNMP / Discord only -->
+            <div v-if="monitor.type === 'http' || monitor.type === 'json-query' || monitor.type === 'keyword' || monitor.type === 'ping' || monitor.type === 'rabbitmq' || monitor.type === 'snmp' || monitor.type === 'discord'" class="my-3">
                                 <label for="timeout" class="form-label">
                                     {{ monitor.type === 'ping' ? $t("pingGlobalTimeoutLabel") : $t("Request Timeout") }}
                                     <span v-if="monitor.type !== 'ping'">({{ $t("timeoutAfter", [monitor.timeout || clampTimeout(monitor.interval)]) }})</span>

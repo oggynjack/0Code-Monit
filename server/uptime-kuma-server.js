@@ -119,6 +119,7 @@ class CodeMonitServer {
         CodeMonitServer.monitorTypeList["mongodb"] = new MongodbMonitorType();
         CodeMonitServer.monitorTypeList["rabbitmq"] = new RabbitMqMonitorType();
         CodeMonitServer.monitorTypeList["manual"] = new ManualMonitorType();
+        CodeMonitServer.monitorTypeList["discord"] = new DiscordMonitorType();
 
         // Allow all CORS origins (polling) in development
         let cors = undefined;
@@ -561,4 +562,5 @@ const { SNMPMonitorType } = require("./monitor-types/snmp");
 const { MongodbMonitorType } = require("./monitor-types/mongodb");
 const { RabbitMqMonitorType } = require("./monitor-types/rabbitmq");
 const { ManualMonitorType } = require("./monitor-types/manual");
+const { DiscordMonitorType } = require("./monitor-types/discord");
 const Monitor = require("./model/monitor");
