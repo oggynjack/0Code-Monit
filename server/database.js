@@ -270,7 +270,7 @@ Dialect.prototype._driver = () => {
                 password: dbConfig.password,
             });
 
-            // Set to true, so for example "uptime.kuma", becomes `uptime.kuma`, not `uptime`.`kuma`
+                    // Set to true, so for example "0code.monit", becomes `0code.monit`, not `0code`.`monit`
             // Doc: https://github.com/mysqljs/sqlstring?tab=readme-ov-file#escaping-query-identifiers
             const escapedDBName = SqlString.escapeId(dbConfig.dbName, true);
 

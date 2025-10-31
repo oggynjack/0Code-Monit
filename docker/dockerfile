@@ -31,7 +31,7 @@ WORKDIR /app
 
 LABEL org.opencontainers.image.source="https://github.com/oggynjack/0Code-Monit"
 
-ENV UPTIME_KUMA_IS_CONTAINER=1
+ENV CODE_MONIT_IS_CONTAINER=1
 
 # Copy app files from build layer
 COPY --chown=node:node --from=build /app /app

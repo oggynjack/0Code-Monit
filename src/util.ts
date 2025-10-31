@@ -28,7 +28,7 @@ export const isNode = typeof process !== "undefined" && process?.versions?.node;
  */
 const dayjs = (isNode) ? require("dayjs") : dayjsFrontend;
 
-export const appName = "Uptime Kuma";
+export const appName = "0Code-Monit";
 export const DOWN = 0;
 export const UP = 1;
 export const PENDING = 2;
@@ -218,19 +218,15 @@ class Logger {
      *
      */
     constructor() {
-        if (typeof process !== "undefined" && process.env.UPTIME_KUMA_HIDE_LOG) {
-            const list = process.env.UPTIME_KUMA_HIDE_LOG.split(",").map(v => v.toLowerCase());
-
+        if (typeof process !== "undefined" && process.env.CODE_MONIT_HIDE_LOG) {
+            const list = process.env.CODE_MONIT_HIDE_LOG.split(",").map(v => v.toLowerCase());
             for (const pair of list) {
-                // split first "_" only
                 const values = pair.split(/_(.*)/s);
-
                 if (values.length >= 2) {
                     this.hideLog[values[0]].push(values[1]);
                 }
             }
-
-            this.debug("server", "UPTIME_KUMA_HIDE_LOG is set");
+            this.debug("server", "CODE_MONIT_HIDE_LOG is set");
             this.debug("server", this.hideLog);
         }
     }

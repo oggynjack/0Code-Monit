@@ -1,6 +1,6 @@
 //
 //  bark.js
-//  UptimeKuma
+//  0Code-Monit
 //
 //  Created by Lakr Aream on 2021/10/24.
 //  Copyright © 2021 Lakr Aream. All rights reserved.
@@ -30,17 +30,17 @@ class Bark extends NotificationProvider {
         }
 
         if (msg != null && heartbeatJSON != null && heartbeatJSON["status"] === UP) {
-            let title = "UptimeKuma Monitor Up";
+            let title = "0Code-Monit Monitor Up";
             return await this.postNotification(notification, title, msg, barkEndpoint);
         }
 
         if (msg != null && heartbeatJSON != null && heartbeatJSON["status"] === DOWN) {
-            let title = "UptimeKuma Monitor Down";
+            let title = "0Code-Monit Monitor Down";
             return await this.postNotification(notification, title, msg, barkEndpoint);
         }
 
         if (msg != null) {
-            let title = "UptimeKuma Message";
+            let title = "0Code-Monit Message";
             return await this.postNotification(notification, title, msg, barkEndpoint);
         }
     }
@@ -52,14 +52,14 @@ class Bark extends NotificationProvider {
      * @returns {string} Additional URL parameters
      */
     additionalParameters(notification) {
-        // set icon to uptime kuma icon, 11kb should be fine
+        // set icon to 0code-monit icon, 11kb should be fine
         let params = "?icon=" + barkNotificationAvatar;
         // grouping all our notifications
         if (notification.barkGroup != null) {
             params += "&group=" + notification.barkGroup;
         } else {
             // default name
-            params += "&group=" + "UptimeKuma";
+            params += "&group=" + "0Code-Monit";
         }
         // picked a sound, this should follow system's mute status when arrival
         if (notification.barkSound != null) {
@@ -109,7 +109,7 @@ class Bark extends NotificationProvider {
                 body: subtitle,
                 icon: barkNotificationAvatar,
                 sound: notification.barkSound || "telegraph", // default sound is telegraph
-                group: notification.barkGroup || "UptimeKuma", // default group is UptimeKuma
+                group: notification.barkGroup || "0Code-Monit", // default group is 0Code-Monit
             }, config);
         }
         this.checkResult(result);

@@ -17,7 +17,7 @@ const { isSSL, sslKey, sslCert, sslKeyPassphrase } = require("./config");
 
 /**
  * `module.exports` (alias: `server`) should be inside this class, in order to avoid circular dependency issue.
- * @type {UptimeKumaServer}
+ * @type {CodeMonitServer}
  */
 class CodeMonitServer {
     /**
@@ -148,7 +148,7 @@ class CodeMonitServer {
                 if (transport === "polling") {
                     callback(null, true);
                 } else if (transport === "websocket") {
-                    const bypass = process.env.UPTIME_KUMA_WS_ORIGIN_CHECK === "bypass";
+                    const bypass = process.env.CODE_MONIT_WS_ORIGIN_CHECK === "bypass";
                     if (bypass) {
                         log.info("auth", "WebSocket origin check is bypassed");
                         callback(null, true);

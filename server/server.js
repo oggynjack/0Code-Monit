@@ -682,7 +682,7 @@ let needSetup = false;
                 }
 
                 if ((await R.knex("user").count("id as count").first()).count !== 0) {
-                    throw new Error("Uptime Kuma has been initialized. If you want to run setup again, please delete the database.");
+                    throw new Error("0Code-Monit has been initialized. If you want to run setup again, please delete the database.");
                 }
 
                 let user = R.dispense("user");
