@@ -64,9 +64,9 @@ if (process.platform === "win32") {
  */
 async function isAllowedChromeExecutable(executablePath) {
     console.log(config.args);
-    if (config.args["allow-all-chrome-exec"] || process.env.UPTIME_KUMA_ALLOW_ALL_CHROME_EXEC === "1") {
-        return true;
-    }
+if (config.args["allow-all-chrome-exec"] || process.env.CODE_MONIT_ALLOW_ALL_CHROME_EXEC === "1" || process.env.UPTIME_KUMA_ALLOW_ALL_CHROME_EXEC === "1") {
+    return true;
+}
 
     // Check if the executablePath is in the list of allowed executables
     return allowedList.includes(executablePath);
@@ -118,8 +118,8 @@ async function prepareChromeExecutable(executablePath) {
         // Set to undefined = use playwright_chromium
         executablePath = undefined;
     } else if (!executablePath) {
-        if (process.env.UPTIME_KUMA_IS_CONTAINER) {
-            executablePath = "/usr/bin/chromium";
+if (process.env.CODE_MONIT_IS_CONTAINER || process.env.ZEROCODE_MONIT_IS_CONTAINER || process.env.UPTIME_KUMA_IS_CONTAINER) {
+    executablePath = "/usr/bin/chromium";
 
             // Install chromium in container via apt install
             if ( !commandExistsSync(executablePath)) {
@@ -152,7 +152,7 @@ async function prepareChromeExecutable(executablePath) {
         // User specified a path
         // Check if the executablePath is in the list of allowed
         if (!await isAllowedChromeExecutable(executablePath)) {
-            throw new Error("This Chromium executable path is not allowed by default. If you are sure this is safe, please add an environment variable UPTIME_KUMA_ALLOW_ALL_CHROME_EXEC=1 to allow it.");
+throw new Error("This Chromium executable path is not allowed by default. If you are sure this is safe, please set CODE_MONIT_ALLOW_ALL_CHROME_EXEC=1 (or UPTIME_KUMA_ALLOW_ALL_CHROME_EXEC=1) to allow it.");
         }
     }
     return executablePath;

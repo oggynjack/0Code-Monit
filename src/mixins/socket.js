@@ -13,8 +13,9 @@ let socket;
 
 const noSocketIOPages = [
     /^\/status-page$/,  //  /status-page
-    /^\/status/,    // /status**
-    /^\/$/      //  /
+    /^\/status/,        // /status**
+    /^\/public/,        // disable sockets for all public pages (public-dashboard, public-login, public-status, etc.)
+    /^\/$/              //  /
 ];
 
 const favicon = new Favico({
@@ -214,8 +215,8 @@ export default {
                 }
 
                 // Add to important list if it is important
-                // Also toast
-                if (data.important) {
+                // Also toast - but only for authenticated users, not public status pages
+                if (data.important && !this.isPublicStatusPage()) {
 
                     if (this.monitorList[data.monitorID] !== undefined) {
                         if (data.status === 0) {
@@ -654,6 +655,16 @@ export default {
          */
         deleteAPIKey(keyID, callback) {
             socket.emit("deleteAPIKey", keyID, callback);
+        },
+
+        /**
+         * Check if current page is a public status page
+         * @returns {boolean}
+         */
+        isPublicStatusPage() {
+            return location.pathname.includes('/public-dashboard') || 
+                   location.pathname.includes('/status/') ||
+                   this.$route?.name === 'PublicStatusPage';
         },
 
         /**

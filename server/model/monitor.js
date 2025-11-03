@@ -578,9 +578,12 @@ class Monitor extends BeanModel {
                         }
                     }
 
-                    if (process.env.UPTIME_KUMA_LOG_RESPONSE_BODY_MONITOR_ID === this.id) {
-                        log.info("monitor", res.data);
-                    }
+{
+    const logEnv = process.env.CODE_MONIT_LOG_RESPONSE_BODY_MONITOR_ID || process.env.UPTIME_KUMA_LOG_RESPONSE_BODY_MONITOR_ID;
+    if (logEnv === this.id) {
+        log.info("monitor", res.data);
+    }
+}
 
                     if (this.type === "http") {
                         bean.status = UP;

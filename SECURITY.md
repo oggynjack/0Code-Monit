@@ -33,6 +33,4 @@ versions are upgradable to the latest version.
 | 1-debian       | :white_check_mark: |
 | latest         | :white_check_mark: |
 | debian         | :white_check_mark: |
-| 1-alpine       | ⚠️ Deprecated      |
-| alpine         | ⚠️ Deprecated      |
 | All other tags | ❌                 |

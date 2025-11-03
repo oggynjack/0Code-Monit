@@ -39,10 +39,10 @@
 ### 🐳 Docker
 
 ```bash path=null start=null
-docker run -d --restart=unless-stopped \
-  -p 3001:3001 \
-  -v 0code-monit:/app/data \
-  --name 0code-monit \
+docker run -d --restart=unless-stopped \\
+  -p 3000:3000 \\
+  -v 0code-monit:/app/data \\
+  --name 0code-monit \\
   oggynjack/0code-monit:1.0.1
 ```
 
@@ -63,7 +63,7 @@ npm i -g pm2 && pm2 install pm2-logrotate
 pm2 start server/server.js --name 0code-monit
 ```
 
-0Code-Monit will be available at http://localhost:3001
+0Code-Monit will be available at http://localhost:3000
 
 ## 📸 Screenshots
 

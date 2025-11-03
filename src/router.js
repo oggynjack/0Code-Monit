@@ -21,6 +21,14 @@ import MaintenanceDetails from "./pages/MaintenanceDetails.vue";
 import ManageMaintenance from "./pages/ManageMaintenance.vue";
 import APIKeys from "./components/settings/APIKeys.vue";
 import SetupDatabase from "./pages/SetupDatabase.vue";
+import PublicLogin from "./pages/PublicLogin.vue";
+import PublicDashboard from "./pages/PublicDashboard.vue";
+import PublicStatusPage from "./pages/PublicStatusPage.vue";
+import PublicAccountSetup from "./pages/PublicAccountSetup.vue";
+import HomePage from "./pages/HomePage.vue";
+import Docs from "./pages/Docs.vue";
+import Pricing from "./pages/Pricing.vue";
+import Support from "./pages/Support.vue";
 
 // Settings - Sub Pages
 import Appearance from "./components/settings/Appearance.vue";
@@ -172,12 +180,40 @@ const routes = [
         ],
     },
     {
+        path: "/home",
+        component: HomePage,
+    },
+    {
+        path: "/docs",
+        component: Docs,
+    },
+    {
+        path: "/pricing",
+        component: Pricing,
+    },
+    {
+        path: "/support",
+        component: Support,
+    },
+    {
         path: "/setup",
         component: Setup,
     },
     {
         path: "/setup-database",
         component: SetupDatabase,
+    },
+    {
+        path: "/public-login",
+        component: PublicLogin,
+    },
+    {
+        path: "/public-account-setup",
+        component: PublicAccountSetup,
+    },
+    {
+        path: "/public-dashboard",
+        component: PublicDashboard,
     },
     {
         path: "/status-page",
@@ -190,6 +226,10 @@ const routes = [
     {
         path: "/status/:slug",
         component: StatusPage,
+    },
+    {
+        path: "/public-status/:slug",
+        component: PublicStatusPage,
     },
     {
         path: "/:pathMatch(.*)*",

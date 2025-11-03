@@ -47,15 +47,15 @@ if (! process.env.NODE_ENV) {
     process.env.NODE_ENV = "production";
 }
 
-if (!process.env.UPTIME_KUMA_WS_ORIGIN_CHECK) {
-    process.env.UPTIME_KUMA_WS_ORIGIN_CHECK = "cors-like";
+if (!process.env.CODE_MONIT_WS_ORIGIN_CHECK) {
+    process.env.CODE_MONIT_WS_ORIGIN_CHECK = "cors-like";
 }
 
 log.info("server", "Env: " + process.env.NODE_ENV);
-log.debug("server", "Inside Container: " + (process.env.UPTIME_KUMA_IS_CONTAINER === "1"));
+log.debug("server", "Inside Container: " + ((process.env.CODE_MONIT_IS_CONTAINER === "1") || (process.env.ZEROCODE_MONIT_IS_CONTAINER === "1") || (process.env.UPTIME_KUMA_IS_CONTAINER === "1")));
 
-if (process.env.UPTIME_KUMA_WS_ORIGIN_CHECK === "bypass") {
-    log.warn("server", "WebSocket Origin Check: " + process.env.UPTIME_KUMA_WS_ORIGIN_CHECK);
+if (process.env.CODE_MONIT_WS_ORIGIN_CHECK === "bypass") {
+    log.warn("server", "WebSocket Origin Check: " + process.env.CODE_MONIT_WS_ORIGIN_CHECK);
 }
 
 const checkVersion = require("./check-version");
@@ -116,8 +116,8 @@ if (hostname) {
 
 const port = config.port;
 
-const disableFrameSameOrigin = !!process.env.UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN || args["disable-frame-sameorigin"] || false;
-const cloudflaredToken = args["cloudflared-token"] || process.env.UPTIME_KUMA_CLOUDFLARED_TOKEN || undefined;
+const disableFrameSameOrigin = !!(process.env.CODE_MONIT_DISABLE_FRAME_SAMEORIGIN || process.env.UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN) || args["disable-frame-sameorigin"] || false;
+const cloudflaredToken = args["cloudflared-token"] || process.env.CODE_MONIT_CLOUDFLARED_TOKEN || process.env.UPTIME_KUMA_CLOUDFLARED_TOKEN || undefined;
 
 // 2FA / notp verification defaults
 const twoFAVerifyOptions = {
@@ -210,27 +210,27 @@ let needSetup = false;
 
         log.debug("entry", `Request Domain: ${hostname}`);
 
-        const uptimeKumaEntryPage = server.entryPage;
-        if (hostname in StatusPage.domainMappingList) {
+const codeMonitEntryPage = server.entryPage;
+if (hostname in StatusPage.domainMappingList) {
             log.debug("entry", "This is a status page domain");
 
             let slug = StatusPage.domainMappingList[hostname];
             await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
 
-        } else if (uptimeKumaEntryPage && uptimeKumaEntryPage.startsWith("statusPage-")) {
-            let basePath = await Settings.get("statusPageBasePath") || "/status";
-            // Normalize: ensure starts with / and doesn't end with /
-            basePath = basePath.trim();
-            if (!basePath.startsWith("/")) {
-                basePath = "/" + basePath;
-            }
-            if (basePath.endsWith("/")) {
-                basePath = basePath.slice(0, -1);
-            }
-            response.redirect(basePath + "/" + uptimeKumaEntryPage.replace("statusPage-", ""));
+} else if (codeMonitEntryPage && codeMonitEntryPage.startsWith("statusPage-")) {
+    let basePath = await Settings.get("statusPageBasePath") || "/status";
+    // Normalize: ensure starts with / and doesn't end with /
+    basePath = basePath.trim();
+    if (!basePath.startsWith("/")) {
+        basePath = "/" + basePath;
+    }
+    if (basePath.endsWith("/")) {
+        basePath = basePath.slice(0, -1);
+    }
+    response.redirect(basePath + "/" + codeMonitEntryPage.replace("statusPage-", ""));
 
         } else {
-            response.redirect("/dashboard");
+            response.redirect("/home");
         }
     });
 
@@ -318,6 +318,14 @@ let needSetup = false;
     const apiRouter = require("./routers/api-router");
     app.use(apiRouter);
 
+    // Google OAuth Router
+    const googleAuthRouter = require("./routers/google-auth-router");
+    app.use(googleAuthRouter);
+
+    // Public Monitor Router
+    const publicMonitorRouter = require("./routers/public-monitor-router");
+    app.use(publicMonitorRouter);
+
     // Analytics Router
     const analyticsRouter = require("./routers/analytics-router");
     app.use(analyticsRouter);
@@ -325,6 +333,14 @@ let needSetup = false;
     // Status Page Router
     const statusPageRouter = require("./routers/status-page-router");
     app.use(statusPageRouter);
+
+    // Start public monitor worker
+    try {
+        const publicMonitorWorker = require("./workers/public-monitor-worker");
+        publicMonitorWorker.start();
+    } catch (e) {
+        log.error("server", "Failed to start public monitor worker: " + e.message);
+    }
 
     // Universal Route Handler, must be at the end of all express routes.
     app.get("*", async (_request, response) => {
@@ -522,7 +538,7 @@ let needSetup = false;
                     // Related issue: https://github.com/oggynjack/0Code-Monit/issues/486
                     encodedSecret = encodedSecret.toString().replace(/=/g, "");
 
-                    let uri = `otpauth://totp/Uptime%20Kuma:${user.username}?secret=${encodedSecret}`;
+let uri = `otpauth://totp/0Code%20Monit:${user.username}?secret=${encodedSecret}`;
 
                     await R.exec("UPDATE `user` SET twofa_secret = ? WHERE id = ? ", [
                         newSecret,
@@ -1643,13 +1659,15 @@ let needSetup = false;
         process.exit(1);
     });
 
+    // Listen on the configured port (dev: 3001 by default; prod: from env/args)
+    const serverPort = port;
     await server.start();
 
-    server.httpServer.listen(port, hostname, async () => {
+    server.httpServer.listen(serverPort, hostname, async () => {
         if (hostname) {
-            log.info("server", `Listening on ${hostname}:${port}`);
+            log.info("server", `Listening on ${hostname}:${serverPort}`);
         } else {
-            log.info("server", `Listening on ${port}`);
+            log.info("server", `Listening on ${serverPort}`);
         }
         await startMonitors();
 
@@ -1771,7 +1789,7 @@ async function initDatabase(testMode = false) {
         log.debug("server", "Load JWT secret from database.");
     }
 
-    // If there is no record in user table, it is a new Uptime Kuma instance, need to setup
+// If there is no record in user table, it is a new 0Code Monit instance, need to setup
     if ((await R.knex("user").count("id as count").first()).count === 0) {
         log.info("server", "No user, need setup");
         needSetup = true;

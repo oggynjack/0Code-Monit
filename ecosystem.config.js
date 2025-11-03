@@ -9,8 +9,8 @@ module.exports = {
             max_memory_restart: "500M",
             env: {
                 NODE_ENV: "production",
-                ZEROCODE_MONIT_PORT: 4010,
-                ZEROCODE_MONIT_HOST: "0.0.0.0"
+                PORT: 4010,
+                HOST: "0.0.0.0"
             },
             error_file: "logs/0code-monit-error.log",
             out_file: "logs/0code-monit-out.log",

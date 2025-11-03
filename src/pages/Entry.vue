@@ -36,13 +36,13 @@ export default {
                 if (entryPage?.startsWith("statusPage-")) {
                     this.$router.push("/status/" + entryPage.replace("statusPage-", ""));
                 } else {
-                    // should the old setting style still exist here?
-                    this.$router.push("/dashboard");
+                    // Redirect to our public homepage
+                    this.$router.push("/home");
                 }
             } else if (res.type === "setup-database") {
                 this.$router.push("/setup-database");
             } else {
-                this.$router.push("/dashboard");
+                this.$router.push("/home");
             }
         } catch (e) {
             alert("Cannot connect to the backend server. Did you start the backend server? (npm run start-server-dev)");

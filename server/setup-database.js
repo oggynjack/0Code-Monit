@@ -68,17 +68,18 @@ class SetupDatabase {
             dbConfig = {};
         }
 
-        if (process.env.UPTIME_KUMA_DB_TYPE) {
-            this.needSetup = false;
-            log.info("setup-database", "UPTIME_KUMA_DB_TYPE is provided by env, try to override db-config.json");
-            dbConfig.type = process.env.UPTIME_KUMA_DB_TYPE;
-            dbConfig.hostname = process.env.UPTIME_KUMA_DB_HOSTNAME;
-            dbConfig.port = process.env.UPTIME_KUMA_DB_PORT;
-            dbConfig.dbName = process.env.UPTIME_KUMA_DB_NAME;
-            dbConfig.username = process.env.UPTIME_KUMA_DB_USERNAME;
-            dbConfig.password = process.env.UPTIME_KUMA_DB_PASSWORD;
-            Database.writeDBConfig(dbConfig);
-        }
+const DB_TYPE = process.env.CODE_MONIT_DB_TYPE || process.env.UPTIME_KUMA_DB_TYPE;
+if (DB_TYPE) {
+    this.needSetup = false;
+    log.info("setup-database", `${DB_TYPE} is provided by env, try to override db-config.json`);
+    dbConfig.type = DB_TYPE;
+    dbConfig.hostname = process.env.CODE_MONIT_DB_HOSTNAME || process.env.UPTIME_KUMA_DB_HOSTNAME;
+    dbConfig.port = process.env.CODE_MONIT_DB_PORT || process.env.UPTIME_KUMA_DB_PORT;
+    dbConfig.dbName = process.env.CODE_MONIT_DB_NAME || process.env.UPTIME_KUMA_DB_NAME;
+    dbConfig.username = process.env.CODE_MONIT_DB_USERNAME || process.env.UPTIME_KUMA_DB_USERNAME;
+    dbConfig.password = process.env.CODE_MONIT_DB_PASSWORD || process.env.UPTIME_KUMA_DB_PASSWORD;
+    Database.writeDBConfig(dbConfig);
+}
 
     }
 
@@ -95,7 +96,7 @@ class SetupDatabase {
      * @returns {boolean} true if the embedded MariaDB is enabled
      */
     isEnabledEmbeddedMariaDB() {
-        return process.env.UPTIME_KUMA_ENABLE_EMBEDDED_MARIADB === "1";
+return (process.env.CODE_MONIT_ENABLE_EMBEDDED_MARIADB === "1") || (process.env.UPTIME_KUMA_ENABLE_EMBEDDED_MARIADB === "1");
     }
 
     /**

@@ -199,7 +199,7 @@ export function debug(msg: unknown) {
 class Logger {
 
     /**
-     * UPTIME_KUMA_HIDE_LOG=debug_monitor,info_monitor
+ * CODE_MONIT_HIDE_LOG=debug_monitor,info_monitor
      *
      * Example:
      *  [

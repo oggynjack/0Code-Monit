@@ -50,6 +50,14 @@ import {
     faInfoCircle,
     faClone,
     faCertificate,
+    faBell,
+    faMoon,
+    faSun,
+    faGlobe,
+    faPaperPlane,
+    faSlidersH,
+    faDesktop,
+    faUserCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -97,6 +105,14 @@ library.add(
     faInfoCircle,
     faClone,
     faCertificate,
+    faBell,
+    faMoon,
+    faSun,
+    faGlobe,
+    faPaperPlane,
+    faSlidersH,
+    faDesktop,
+    faUserCircle,
 );
 
 export { FontAwesomeIcon };
