@@ -33,6 +33,7 @@ extra/exe-builder/obj
 
 # Local databases and logs
 db/*.db
+!db/0code-monit.db
 logs/
 
 # Documentation and design sources (keep out of repo)

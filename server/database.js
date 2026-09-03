@@ -247,8 +247,13 @@ class Database {
         if (dbConfig.type === "sqlite") {
 
             if (! fs.existsSync(Database.sqlitePath)) {
-                log.info("server", "Copying Database");
-                fs.copyFileSync(Database.templatePath, Database.sqlitePath);
+                if (fs.existsSync(Database.templatePath)) {
+                    log.info("server", "Copying Database template");
+                    fs.copyFileSync(Database.templatePath, Database.sqlitePath);
+                } else {
+                    log.info("server", "Initializing fresh SQLite database");
+                    fs.closeSync(fs.openSync(Database.sqlitePath, "w"));
+                }
             }
 
 const Dialect = require("knex/lib/dialects/sqlite3/index.js");

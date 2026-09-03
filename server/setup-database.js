@@ -52,34 +52,30 @@ class SetupDatabase {
             this.needSetup = false;
 
         } catch (e) {
-            log.info("setup-database", "db-config.json is not found or invalid: " + e.message);
+            log.info("setup-database", "db-config.json is not found; defaulting to embedded SQLite: " + e.message);
 
-            // Check if 0code-monit.db is found (1.X.X users), generate db-config.json
-            if (fs.existsSync(path.join(Database.dataDir, "0code-monit.db"))) {
-                this.needSetup = false;
-
-                log.info("setup-database", "0code-monit.db is found, generate db-config.json");
-                Database.writeDBConfig({
-                    type: "sqlite",
-                });
-            } else {
-                this.needSetup = true;
-            }
-            dbConfig = {};
+            // Auto-generate SQLite db-config.json for zero-configuration startup
+            this.needSetup = false;
+            dbConfig = {
+                type: "sqlite",
+            };
+            try {
+                Database.writeDBConfig(dbConfig);
+            } catch (_) {}
         }
 
-const DB_TYPE = process.env.CODE_MONIT_DB_TYPE ;
-if (DB_TYPE) {
-    this.needSetup = false;
-    log.info("setup-database", `${DB_TYPE} is provided by env, try to override db-config.json`);
-    dbConfig.type = DB_TYPE;
-    dbConfig.hostname = process.env.CODE_MONIT_DB_HOSTNAME ;
-    dbConfig.port = process.env.CODE_MONIT_DB_PORT ;
-    dbConfig.dbName = process.env.CODE_MONIT_DB_NAME ;
-    dbConfig.username = process.env.CODE_MONIT_DB_USERNAME ;
-    dbConfig.password = process.env.CODE_MONIT_DB_PASSWORD ;
-    Database.writeDBConfig(dbConfig);
-}
+        const DB_TYPE = process.env.DB_TYPE || process.env.CODE_MONIT_DB_TYPE;
+        if (DB_TYPE) {
+            this.needSetup = false;
+            log.info("setup-database", `${DB_TYPE} is provided by env, try to override db-config.json`);
+            dbConfig.type = DB_TYPE;
+            dbConfig.hostname = process.env.DB_HOST || process.env.CODE_MONIT_DB_HOSTNAME || "127.0.0.1";
+            dbConfig.port = process.env.DB_PORT || process.env.CODE_MONIT_DB_PORT;
+            dbConfig.dbName = process.env.DB_NAME || process.env.CODE_MONIT_DB_NAME || "0code-monit";
+            dbConfig.username = process.env.DB_USER || process.env.CODE_MONIT_DB_USERNAME || "root";
+            dbConfig.password = process.env.DB_PASSWORD || process.env.CODE_MONIT_DB_PASSWORD || "";
+            Database.writeDBConfig(dbConfig);
+        }
 
     }
 
