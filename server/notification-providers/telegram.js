@@ -36,6 +36,9 @@ class Telegram extends NotificationProvider {
             return okMsg;
 
         } catch (error) {
+            if (error.response?.data?.description?.includes("chat not found")) {
+                throw new Error("Telegram error: Chat not found. Please open your Telegram bot in Telegram and send '/start' to it first, or add the bot as an admin to your channel/group.");
+            }
             this.throwGeneralAxiosError(error);
         }
     }
