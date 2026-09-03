@@ -2,39 +2,168 @@
     <div class="public-login-container">
         <div class="login-card">
             <div class="text-center mb-4">
-                <img src="/icon.svg" width="80" height="80" alt="Logo" />
-                <h2 class="mt-3">Welcome to 0Code Monit</h2>
-                <p class="text-muted">Monitor up to 3 websites for free</p>
+                <img src="/icon.svg" width="70" height="70" alt="0Code-Monit Logo" />
+                <h2 class="mt-3 brand-title">0Code-Monit</h2>
+                <p class="text-muted">Real-time Website & Uptime Monitoring</p>
             </div>
 
-            <div v-if="errorMessage" class="alert alert-danger mb-3" role="alert">
-                {{ errorMessage }}
+            <!-- Tabs: OTP vs Password -->
+            <ul class="nav nav-pills nav-fill mb-4 custom-nav-pills">
+                <li class="nav-item">
+                    <button 
+                        class="nav-link" 
+                        :class="{ active: authMode === 'otp' }" 
+                        @click="authMode = 'otp'"
+                    >
+                        <i class="fas fa-envelope-open-text me-1"></i> Email Code (OTP)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button 
+                        class="nav-link" 
+                        :class="{ active: authMode === 'password' }" 
+                        @click="authMode = 'password'"
+                    >
+                        <i class="fas fa-key me-1"></i> Password
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Alerts -->
+            <div v-if="errorMessage" class="alert alert-danger mb-3 d-flex align-items-center" role="alert">
+                <i class="fas fa-exclamation-circle me-2 flex-shrink-0"></i>
+                <div>{{ errorMessage }}</div>
+            </div>
+            <div v-if="successMessage" class="alert alert-success mb-3 d-flex align-items-center" role="alert">
+                <i class="fas fa-check-circle me-2 flex-shrink-0"></i>
+                <div>{{ successMessage }}</div>
             </div>
 
-            <div class="d-grid gap-3">
-                <button class="btn btn-google btn-lg" @click="loginWithGoogle">
-                    <svg class="me-2" width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                        <path fill="none" d="M0 0h48v48H0z"/>
-                    </svg>
-                    Sign in with Google
-                </button>
+            <!-- MODE 1: Email Verification Code (OTP) -->
+            <div v-if="authMode === 'otp'">
+                <!-- Step 1: Request OTP -->
+                <form v-if="otpStep === 1" @submit.prevent="sendOtp">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">Email Address (Gmail / Any)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-at"></i></span>
+                            <input 
+                                v-model="email" 
+                                type="email" 
+                                class="form-control form-control-lg" 
+                                placeholder="you@gmail.com" 
+                                required 
+                                :disabled="loading"
+                                autofocus
+                            />
+                        </div>
+                        <div class="form-text">We will send a 6-digit login verification code to your email.</div>
+                    </div>
 
-                <div class="divider">
-                    <span>OR</span>
-                </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 py-3 mt-2" :disabled="loading">
+                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                        <i v-else class="fas fa-paper-plane me-2"></i>
+                        Send Verification Code
+                    </button>
+                </form>
 
-                <router-link to="/home" class="btn btn-outline-secondary btn-lg">
-                    Go to Homepage
-                </router-link>
+                <!-- Step 2: Verify OTP -->
+                <form v-else-if="otpStep === 2" @submit.prevent="verifyOtp">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label text-secondary fw-semibold mb-0">Enter 6-Digit Code</label>
+                            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" @click="otpStep = 1">
+                                Change Email
+                            </button>
+                        </div>
+                        <p class="small text-muted mb-2">Sent to: <strong>{{ email }}</strong></p>
+                        <input 
+                            v-model="otpCode" 
+                            type="text" 
+                            class="form-control form-control-lg text-center fw-bold fs-3 letter-spacing-4" 
+                            placeholder="000000" 
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            required 
+                            :disabled="loading"
+                            autofocus
+                        />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 py-3 mt-2" :disabled="loading || otpCode.length < 6">
+                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                        <i v-else class="fas fa-sign-in-alt me-2"></i>
+                        Verify & Login
+                    </button>
+
+                    <div class="text-center mt-3">
+                        <button 
+                            type="button" 
+                            class="btn btn-link btn-sm text-decoration-none" 
+                            @click="resendOtp" 
+                            :disabled="resendCooldown > 0 || loading"
+                        >
+                            {{ resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : "Resend Verification Code" }}
+                        </button>
+                    </div>
+                </form>
             </div>
+
+            <!-- MODE 2: Password Login -->
+            <div v-else-if="authMode === 'password'">
+                <form @submit.prevent="loginWithPassword">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">Email or Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input 
+                                v-model="email" 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                placeholder="you@gmail.com" 
+                                required 
+                                :disabled="loading"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-secondary fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input 
+                                v-model="password" 
+                                :type="showPassword ? 'text' : 'password'" 
+                                class="form-control form-control-lg" 
+                                placeholder="••••••••" 
+                                required 
+                                :disabled="loading"
+                            />
+                            <button class="btn btn-outline-secondary" type="button" @click="showPassword = !showPassword">
+                                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 py-3" :disabled="loading">
+                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                        <i v-else class="fas fa-sign-in-alt me-2"></i>
+                        Sign In
+                    </button>
+                </form>
+            </div>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <router-link to="/home" class="btn btn-outline-secondary btn-lg w-100 py-2">
+                <i class="fas fa-home me-2"></i> Back to Homepage
+            </router-link>
 
             <div class="mt-4 text-center">
-                <p class="text-muted small">
-                    By signing in, you agree to our Terms of Service and Privacy Policy
+                <p class="text-muted small mb-0">
+                    By continuing, you agree to 0Code-Monit Terms & Privacy Policy
                 </p>
             </div>
         </div>
@@ -42,27 +171,140 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     name: "PublicLogin",
     data() {
         return {
+            authMode: "otp", // "otp" or "password"
+            otpStep: 1,      // 1: input email, 2: input otp
+            email: "",
+            otpCode: "",
+            password: "",
+            showPassword: false,
+            loading: false,
             errorMessage: "",
+            successMessage: "",
+            resendCooldown: 0,
+            cooldownTimer: null,
         };
     },
     mounted() {
+        // Redirect if already logged in
+        const existingToken = localStorage.getItem("publicToken");
+        if (existingToken) {
+            try {
+                const payload = JSON.parse(atob(existingToken.split(".")[1]));
+                if (payload && payload.exp && payload.exp * 1000 > Date.now()) {
+                    this.$router.push("/public-dashboard");
+                    return;
+                }
+            } catch (_) {}
+        }
+
         const error = this.$route.query.error;
         if (error) {
-            if (error === "oauth_not_configured") {
-                this.errorMessage = "Google OAuth is not configured on this instance.";
-            } else {
-                this.errorMessage = "Login failed: " + error;
-            }
+            this.errorMessage = error;
         }
     },
+    beforeUnmount() {
+        if (this.cooldownTimer) clearInterval(this.cooldownTimer);
+    },
     methods: {
-        loginWithGoogle() {
-            window.location.href = "/auth/google";
-        }
+        async sendOtp() {
+            this.errorMessage = "";
+            this.successMessage = "";
+            this.loading = true;
+
+            try {
+                const res = await axios.post("/api/public/send-login-otp", {
+                    email: this.email,
+                });
+
+                if (res.data && res.data.success) {
+                    this.otpStep = 2;
+                    this.successMessage = `Verification code sent to ${this.email}! Check your inbox.`;
+                    this.startCooldown();
+                } else {
+                    this.errorMessage = res.data?.error || "Failed to send verification code.";
+                }
+            } catch (err) {
+                this.errorMessage = err.response?.data?.error || err.message || "Failed to send verification code.";
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async verifyOtp() {
+            this.errorMessage = "";
+            this.successMessage = "";
+            this.loading = true;
+
+            try {
+                const res = await axios.post("/api/public/verify-login-otp", {
+                    email: this.email,
+                    otp: this.otpCode,
+                });
+
+                if (res.data && res.data.token) {
+                    localStorage.setItem("publicToken", res.data.token);
+                    this.successMessage = "Login successful! Redirecting...";
+                    setTimeout(() => {
+                        this.$router.push("/public-dashboard");
+                    }, 500);
+                } else {
+                    this.errorMessage = res.data?.error || "Invalid verification code.";
+                }
+            } catch (err) {
+                this.errorMessage = err.response?.data?.error || err.message || "Verification failed.";
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async resendOtp() {
+            if (this.resendCooldown > 0) return;
+            await this.sendOtp();
+        },
+
+        startCooldown() {
+            this.resendCooldown = 60;
+            if (this.cooldownTimer) clearInterval(this.cooldownTimer);
+            this.cooldownTimer = setInterval(() => {
+                this.resendCooldown--;
+                if (this.resendCooldown <= 0) {
+                    clearInterval(this.cooldownTimer);
+                }
+            }, 1000);
+        },
+
+        async loginWithPassword() {
+            this.errorMessage = "";
+            this.successMessage = "";
+            this.loading = true;
+
+            try {
+                const res = await axios.post("/api/public/password-login", {
+                    email: this.email,
+                    password: this.password,
+                });
+
+                if (res.data && res.data.token) {
+                    localStorage.setItem("publicToken", res.data.token);
+                    this.successMessage = "Login successful! Redirecting...";
+                    setTimeout(() => {
+                        this.$router.push("/public-dashboard");
+                    }, 500);
+                } else {
+                    this.errorMessage = res.data?.error || "Invalid credentials.";
+                }
+            } catch (err) {
+                this.errorMessage = err.response?.data?.error || err.message || "Login failed.";
+            } finally {
+                this.loading = false;
+            }
+        },
     }
 };
 </script>
@@ -73,66 +315,96 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    padding: 24px;
 }
 
 .login-card {
     background: #ffffff;
     border-radius: 20px;
-    padding: 48px;
+    padding: 40px;
     max-width: 480px;
     width: 100%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
 }
 
-.login-card h2 {
-    color: #1e293b;
-    font-weight: 700;
+.brand-title {
+    color: #0f172a;
+    font-weight: 800;
+    letter-spacing: -0.5px;
 }
 
-.text-muted {
-    color: #64748b !important;
+.custom-nav-pills {
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
 }
 
-.btn-google {
-    background: #ffffff;
-    color: #3c4043;
-    border: 2px solid #e2e8f0;
+.custom-nav-pills .nav-link {
+    color: #64748b;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    padding: 12px 24px;
+    border-radius: 10px;
+    padding: 10px 16px;
+    transition: all 0.2s ease;
 }
 
-.btn-google:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+.custom-nav-pills .nav-link.active {
+    background: #ffffff;
+    color: #0d6efd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.letter-spacing-4 {
+    letter-spacing: 8px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: none;
+    font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
 .btn-outline-secondary {
-    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
     color: #475569;
     font-weight: 600;
-    padding: 12px 24px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-outline-secondary:hover {
     background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.input-group-text {
+    background: #f8fafc;
     border-color: #cbd5e1;
-    color: #1e293b;
-    transform: translateY(-2px);
+    color: #64748b;
+}
+
+.form-control {
+    border-color: #cbd5e1;
+}
+
+.form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
 .divider {
     text-align: center;
     position: relative;
-    margin: 24px 0;
+    margin: 24px 0 20px 0;
 }
 
 .divider::before {
@@ -150,13 +422,13 @@ export default {
     padding: 0 16px;
     position: relative;
     color: #94a3b8;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
 }
 
 @media (max-width: 576px) {
     .login-card {
-        padding: 32px 24px;
+        padding: 28px 20px;
     }
 }
 </style>

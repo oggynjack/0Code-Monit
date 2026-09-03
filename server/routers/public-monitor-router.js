@@ -7,6 +7,196 @@ const { setting } = require("../util-server");
 const passwordHash = require("../password-hash");
 const nodemailer = require("nodemailer");
 
+// Helper to get SMTP transporter from ENV or database settings
+async function getSMTPTransporter() {
+    const host = process.env.SMTP_HOST || process.env.SMTP_HOSTNAME;
+    const user = process.env.SMTP_USER || process.env.SMTP_USERNAME;
+    const pass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
+    const port = parseInt(process.env.SMTP_PORT, 10) || 465;
+    const secure = process.env.SMTP_SECURE === "true" || port === 465;
+    const from = process.env.SMTP_FROM || process.env.SMTP_FROM_ADDRESS || `"0Code-Monit" <${user || "noreply@0code.uk"}>`;
+
+    if (host && user && pass) {
+        const transporter = nodemailer.createTransport({
+            host,
+            port,
+            secure,
+            auth: { user, pass }
+        });
+        return { transporter, from };
+    }
+
+    const smtpConfig = await setting("smtpConfig");
+    if (smtpConfig && smtpConfig.host) {
+        const transporter = nodemailer.createTransport({
+            host: smtpConfig.host,
+            port: smtpConfig.port || 587,
+            secure: smtpConfig.secure || false,
+            auth: {
+                user: smtpConfig.username,
+                pass: smtpConfig.password
+            }
+        });
+        return { transporter, from: smtpConfig.from || `"0Code-Monit" <${smtpConfig.username}>` };
+    }
+
+    return null;
+}
+
+// 1. Send Login OTP to Email (Gmail / Any Email)
+router.post("/api/public/send-login-otp", async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email || !email.includes("@")) {
+            return res.status(400).json({ error: "Valid email address is required" });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        let user = await R.findOne("user", " email = ? ", [ normalizedEmail ]);
+
+        if (!user) {
+            user = R.dispense("user");
+            user.username = normalizedEmail.split("@")[0] + "_" + Math.floor(1000 + Math.random() * 9000);
+            user.email = normalizedEmail;
+            user.active = true;
+            user.password = null;
+            await R.store(user);
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.login_otp = otp;
+        user.login_otp_expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+        await R.store(user);
+
+        const smtp = await getSMTPTransporter();
+        if (smtp) {
+            await smtp.transporter.sendMail({
+                from: smtp.from,
+                to: normalizedEmail,
+                subject: `${otp} is your 0Code-Monit verification code`,
+                html: `
+                    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 30px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <h2 style="color: #0d6efd; margin-top: 0; font-size: 24px;">0Code-Monit Login Code</h2>
+                        <p style="color: #475569; font-size: 16px; line-height: 1.5;">Use the following 6-digit code to securely log in to your account:</p>
+                        <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 18px; text-align: center; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #1e293b; margin: 24px 0;">
+                            ${otp}
+                        </div>
+                        <p style="color: #64748b; font-size: 14px;">This code will expire in <strong>10 minutes</strong>. If you did not request this login, please ignore this email.</p>
+                        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+                        <p style="color: #94a3b8; font-size: 12px; margin-bottom: 0;">0Code-Monit &bull; Real-time Website & Uptime Monitoring</p>
+                    </div>
+                `
+            });
+            log.info("public-auth", `Login OTP sent via SMTP to ${normalizedEmail}`);
+        } else {
+            log.warn("public-auth", `SMTP not configured. Login OTP for ${normalizedEmail} is: ${otp}`);
+        }
+
+        res.json({ success: true, message: "Verification code sent to your email" });
+    } catch (error) {
+        log.error("public-auth", `Send login OTP error: ${error.message}`);
+        res.status(500).json({ error: error.message || "Failed to send verification code" });
+    }
+});
+
+// 2. Verify Login OTP and issue JWT
+router.post("/api/public/verify-login-otp", async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ error: "Email and OTP code are required" });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await R.findOne("user", " email = ? ", [ normalizedEmail ]);
+
+        if (!user || !user.id) {
+            return res.status(404).json({ error: "No account found for this email" });
+        }
+
+        if (!user.login_otp || user.login_otp !== otp.trim()) {
+            return res.status(400).json({ error: "Invalid verification code" });
+        }
+
+        const expiry = new Date(user.login_otp_expiry);
+        if (Date.now() > expiry.getTime()) {
+            return res.status(400).json({ error: "Verification code has expired. Please request a new one." });
+        }
+
+        user.login_otp = null;
+        user.login_otp_expiry = null;
+        await R.store(user);
+
+        const jwtSecret = await setting("jwtSecret");
+        const token = jwt.sign({
+            userId: user.id,
+            username: user.username,
+            email: user.email,
+        }, jwtSecret, { expiresIn: "30d" });
+
+        log.info("public-auth", `User ${normalizedEmail} logged in successfully via Email OTP`);
+        res.json({
+            success: true,
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+            }
+        });
+    } catch (error) {
+        log.error("public-auth", `Verify login OTP error: ${error.message}`);
+        res.status(500).json({ error: error.message || "Login verification failed" });
+    }
+});
+
+// 3. Password Login
+router.post("/api/public/password-login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ error: "Email and password are required" });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await R.findOne("user", " email = ? OR username = ? ", [ normalizedEmail, normalizedEmail ]);
+
+        if (!user || !user.id) {
+            return res.status(401).json({ error: "Invalid email or password" });
+        }
+
+        if (!user.password) {
+            return res.status(400).json({ error: "This account has no password set. Please use Email Verification Code (OTP) login." });
+        }
+
+        const isValid = passwordHash.verify(password, user.password);
+        if (!isValid) {
+            return res.status(401).json({ error: "Invalid email or password" });
+        }
+
+        const jwtSecret = await setting("jwtSecret");
+        const token = jwt.sign({
+            userId: user.id,
+            username: user.username,
+            email: user.email,
+        }, jwtSecret, { expiresIn: "30d" });
+
+        log.info("public-auth", `User ${normalizedEmail} logged in successfully via Password`);
+        res.json({
+            success: true,
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+            }
+        });
+    } catch (error) {
+        log.error("public-auth", `Password login error: ${error.message}`);
+        res.status(500).json({ error: error.message || "Login failed" });
+    }
+});
+
 // Middleware to verify JWT token
 async function verifyPublicToken(req, res, next) {
     try {
@@ -47,20 +237,10 @@ router.post("/api/public/send-reset-otp", verifyPublicToken, async (req, res) =>
 
         // Send email with OTP
         try {
-            const smtpConfig = await setting("smtpConfig");
-            if (smtpConfig && smtpConfig.host) {
-                const transporter = nodemailer.createTransport({
-                    host: smtpConfig.host,
-                    port: smtpConfig.port || 587,
-                    secure: smtpConfig.secure || false,
-                    auth: {
-                        user: smtpConfig.username,
-                        pass: smtpConfig.password
-                    }
-                });
-
-                await transporter.sendMail({
-                    from: smtpConfig.from || '"0Code Monit" <noreply@monit.0code.uk>',
+            const smtp = await getSMTPTransporter();
+            if (smtp) {
+                await smtp.transporter.sendMail({
+                    from: smtp.from,
                     to: user.email,
                     subject: "Password Reset Verification Code - 0Code Monit",
                     html: `
