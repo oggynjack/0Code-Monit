@@ -3,7 +3,7 @@
         <div class="hero-section">
             <div class="container text-center">
                 <img src="/icon.svg" width="120" height="120" alt="Logo" class="mb-4" />
-                <h1 class="display-3 fw-bold mb-3">Welcome to 0Code Monit</h1>
+                <h1 class="display-3 fw-bold mb-3">Welcome to 0Code™ Monit</h1>
                 <p class="lead mb-5">
                     Monitor your websites uptime and performance. Free monitoring for up to 3 websites.
                 </p>
@@ -48,9 +48,11 @@
         <footer class="footer py-3 mt-5">
             <div class="container text-center">
                 <p class="text-muted mb-0">
-                    © 2025 0Code Monit. All rights reserved.
+                    © 2025 0Code™ Monit. All rights reserved.
                     <span class="mx-2">|</span>
                     <router-link to="/dashboard" class="text-muted admin-link">Admin</router-link>
+                    <br />
+                    <span>0Code™ is a brand under development</span>
                 </p>
             </div>
         </footer>

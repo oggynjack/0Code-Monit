@@ -46,9 +46,14 @@ async function verifyAPIKey(key) {
         return false;
     }
 
-    // uk prefix + key ID is before _
-    let index = key.substring(2, key.indexOf("_"));
-    let clear = key.substring(key.indexOf("_") + 1, key.length);
+    // Supports cm prefix (0Code-Monit) as well as legacy prefixes
+    const match = key.match(/^(?:cm|0cm|uk)(\d+)_(.+)$/);
+    if (!match) {
+        return false;
+    }
+
+    let index = parseInt(match[1], 10);
+    let clear = match[2];
 
     let hash = await R.findOne("api_key", " id=? ", [ index ]);
 

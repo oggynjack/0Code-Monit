@@ -6,7 +6,7 @@
             <p><span style="color: red;"><sup>*</sup></span>{{ $t("Required") }}</p>
         </div>
         <i18n-t tag="div" keypath="wayToGetFlashDutyKey" class="form-text">
-            <a href="https://flashcat.cloud/product/flashduty?from=kuma" target="_blank">{{ $t("here") }}</a>
+            <a href="https://flashcat.cloud/product/flashduty" target="_blank">{{ $t("here") }}</a>
         </i18n-t>
     </div>
     <div class="mb-3">

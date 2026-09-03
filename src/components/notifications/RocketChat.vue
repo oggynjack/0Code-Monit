@@ -17,7 +17,7 @@
                 {{ $t("aboutChannelName", [$t("rocket.chat")]) }}
             </p>
             <p style="margin-top: 8px;">
-                {{ $t("aboutKumaURL") }}
+                {{ $t("about0CodeMonitURL") }}
             </p>
             <i18n-t tag="p" keypath="emojiCheatSheet" style="margin-top: 8px;">
                 <a href="https://www.webfx.com/tools/emoji-cheat-sheet/" target="_blank">https://www.webfx.com/tools/emoji-cheat-sheet/</a>

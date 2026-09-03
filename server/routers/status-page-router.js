@@ -1,6 +1,6 @@
 let express = require("express");
 const apicache = require("../modules/apicache");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { CodeMonitServer } = require("../0Code-Monit-server");
 const StatusPage = require("../model/status_page");
 const { allowDevAllOrigin, sendHttpError } = require("../util-server");
 const { R } = require("redbean-node");
@@ -12,7 +12,7 @@ const { Settings } = require("../settings");
 let router = express.Router();
 
 let cache = apicache.middleware;
-const server = UptimeKumaServer.getInstance();
+const server = CodeMonitServer.getInstance();
 
 /**
  * Normalize path by ensuring it starts with / and doesn't end with /

@@ -18,11 +18,11 @@ class PushDeer extends NotificationProvider {
 
         let title;
         if (valid && heartbeatJSON.status === UP) {
-            title = "## Uptime Kuma: " + monitorJSON.name + " up";
+            title = "## 0Code-Monit: " + monitorJSON.name + " up";
         } else if (valid && heartbeatJSON.status === DOWN) {
-            title = "## Uptime Kuma: " + monitorJSON.name + " down";
+            title = "## 0Code-Monit: " + monitorJSON.name + " down";
         } else {
-            title = "## Uptime Kuma Message";
+            title = "## 0Code-Monit Message";
         }
 
         let data = {

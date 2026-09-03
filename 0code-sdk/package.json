@@ -1,0 +1,18 @@
+{
+    "name": "0code-sdk",
+    "version": "1.0.0",
+    "description": "Monit SDK — built for 0Code-Monit",
+    "private": true,
+    "workspaces": [
+        "0code-push",
+        "0code-pr"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/oggynjack/0Code-Monit.git",
+        "directory": "0code-sdk"
+    },
+    "keywords": ["0code-monit", "monitoring", "uptime", "sdk", "push-notifications", "devops"],
+    "author": "oggynjack <lakhijass632@gmail.com>",
+    "license": "MIT"
+}

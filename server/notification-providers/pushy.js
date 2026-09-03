@@ -15,7 +15,7 @@ class Pushy extends NotificationProvider {
             await axios.post(`https://api.pushy.me/push?api_key=${notification.pushyAPIKey}`, {
                 "to": notification.pushyToken,
                 "data": {
-                    "message": "Uptime-Kuma"
+                    "message": "0Code-Monit"
                 },
                 "notification": {
                     "body": msg,

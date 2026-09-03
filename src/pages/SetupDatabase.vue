@@ -4,7 +4,7 @@
             <div>
                 <object width="64" height="64" data="/icon.svg" />
                 <div style="font-size: 28px; font-weight: bold; margin-top: 5px;">
-                    Uptime Kuma
+                    0Code Monit
                 </div>
             </div>
 
@@ -116,7 +116,7 @@ export default {
                 hostname: "",
                 username: "",
                 password: "",
-                dbName: "kuma",
+                dbName: "0code-monit",
             },
             info: {
                 needSetup: false,

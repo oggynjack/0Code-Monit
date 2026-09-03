@@ -2,7 +2,7 @@ const ColumnCompilerMySQL = require("knex/lib/dialects/mysql/schema/mysql-column
 const { formatDefault } = require("knex/lib/formatter/formatterUtils");
 const { log } = require("../../../../../../../src/util");
 
-class KumaColumnCompiler extends ColumnCompilerMySQL {
+class CodeMonitColumnCompiler extends ColumnCompilerMySQL {
     /**
      * Override defaultTo method to handle default value for TEXT fields
      * @param {any} value Value
@@ -19,4 +19,4 @@ class KumaColumnCompiler extends ColumnCompilerMySQL {
     }
 }
 
-module.exports = KumaColumnCompiler;
+module.exports = CodeMonitColumnCompiler;

@@ -1,0 +1,29 @@
+{
+  "name": "@oggynjack/0code-pr",
+  "version": "1.0.1",
+  "type": "module",
+  "bin": {
+    "0code-pr": "./index.mjs"
+  },
+  "scripts": {
+    "build:all": "node build.js",
+    "test": "node index.mjs oggynjack:main"
+  },
+  "keywords": [
+    "0code-monit",
+    "pr",
+    "testing",
+    "pull-request",
+    "docker"
+  ],
+  "author": "oggynjack <lakhijass632@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oggynjack/0Code-Monit.git",
+    "directory": "0code-sdk/0code-pr"
+  },
+  "dependencies": {
+    "docker-modem": "^3.0.8"
+  }
+}

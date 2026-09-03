@@ -705,7 +705,7 @@
                                 <input id="cache-bust" v-model="monitor.cacheBust" class="form-check-input" type="checkbox" value="">
                                 <label class="form-check-label" for="cache-bust">
                                     <i18n-t tag="label" keypath="cacheBusterParam" class="form-check-label" for="cache-bust">
-                                        <code>uptime_kuma_cachebuster</code>
+                                        <code>0code_monit_cachebuster</code>
                                     </i18n-t>
                                 </label>
                                 <div class="form-text">
@@ -1430,7 +1430,7 @@ message HealthCheckResponse {
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
-    <Uptime>Kuma</Uptime>
+    <0Code>Monit</0Code>
   </soap:Body>
 </soap:Envelope>` ]);
             }

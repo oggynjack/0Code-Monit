@@ -54,7 +54,7 @@
 
         <div class="mb-3">
             <label for="to-email" class="form-label">{{ $t("To Email") }}</label>
-            <input id="to-email" v-model="$parent.notification.smtpTo" type="text" class="form-control" autocomplete="false" placeholder="example2@kuma.pet, example3@kuma.pet" :required="!hasRecipient">
+            <input id="to-email" v-model="$parent.notification.smtpTo" type="text" class="form-control" autocomplete="false" placeholder="example2@0code.uk, example3@0code.uk" :required="!hasRecipient">
         </div>
 
         <div class="mb-3">

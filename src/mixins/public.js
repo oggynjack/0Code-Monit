@@ -41,8 +41,23 @@ export default {
         },
 
         baseURL() {
-            if (this.$root.info.primaryBaseURL) {
-                return this.$root.info.primaryBaseURL;
+            const primaryBaseURL = this.$root.info.primaryBaseURL;
+
+            // Skip primaryBaseURL if it points to localhost/loopback (e.g. inside a Docker container)
+            // so that badge URLs remain publicly accessible when served behind a reverse proxy or tunnel.
+            if (primaryBaseURL) {
+                try {
+                    const parsed = new URL(primaryBaseURL);
+                    const isLocal = parsed.hostname === "localhost" ||
+                        parsed.hostname === "127.0.0.1" ||
+                        parsed.hostname === "[::1]" ||
+                        parsed.hostname === "0.0.0.0";
+                    if (!isLocal) {
+                        return primaryBaseURL;
+                    }
+                } catch (_) {
+                    // Invalid URL – fall through to default
+                }
             }
 
             if (env === "development" || localStorage.dev === "dev") {

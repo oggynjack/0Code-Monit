@@ -1,8 +1,8 @@
 const { checkLogin, setSetting, setting, doubleCheckPassword } = require("../util-server");
 const { CloudflaredTunnel } = require("../cloudflared-wrapper");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { CodeMonitServer } = require("../0Code-Monit-server");
 const { log } = require("../../src/util");
-const io = UptimeKumaServer.getInstance().io;
+const io = CodeMonitServer.getInstance().io;
 
 const prefix = "cloudflared_";
 const cloudflared = new CloudflaredTunnel();

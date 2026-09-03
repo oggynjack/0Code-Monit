@@ -1,8 +1,8 @@
 const { checkLogin } = require("../util-server");
 const { Proxy } = require("../proxy");
 const { sendProxyList } = require("../client");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
-const server = UptimeKumaServer.getInstance();
+const { CodeMonitServer } = require("../0Code-Monit-server");
+const server = CodeMonitServer.getInstance();
 
 /**
  * Handlers for proxy

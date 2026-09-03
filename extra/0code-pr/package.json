@@ -1,0 +1,8 @@
+{
+    "name": "0code-monit-pr",
+    "version": "1.0.0",
+    "type": "module",
+    "bin": {
+        "0code-pr": "./index.mjs"
+    }
+}

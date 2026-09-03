@@ -25,12 +25,12 @@ class HomeAssistant extends NotificationProvider {
             await axios.post(
                 `${notification.homeAssistantUrl.trim().replace(/\/*$/, "")}/api/services/notify/${notificationService}`,
                 {
-                    title: "Uptime Kuma",
+                    title: "0Code-Monit",
                     message: msg,
                     ...(notificationService !== "persistent_notification" && { data: {
                         name: monitorJSON?.name,
                         status: heartbeatJSON?.status,
-                        channel: "Uptime Kuma",
+                        channel: "0Code-Monit",
                         icon_url: "https://github.com/oggynjack/0Code-Monit/blob/master/public/icon.png?raw=true",
                     } }),
                 }, config);

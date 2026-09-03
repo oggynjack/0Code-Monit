@@ -43,12 +43,12 @@ class PushPlus extends NotificationProvider {
      * @returns {string} Formatted title
      */
     checkStatus(heartbeatJSON, monitorJSON) {
-        let title = "UptimeKuma Message";
+        let title = "0Code-Monit Message";
         if (heartbeatJSON != null && heartbeatJSON["status"] === UP) {
-            title = "UptimeKuma Monitor Up " + monitorJSON["name"];
+            title = "0Code-Monit Monitor Up " + monitorJSON["name"];
         }
         if (heartbeatJSON != null && heartbeatJSON["status"] === DOWN) {
-            title = "UptimeKuma Monitor Down " + monitorJSON["name"];
+            title = "0Code-Monit Monitor Down " + monitorJSON["name"];
         }
         return title;
     }

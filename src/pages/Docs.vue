@@ -12,7 +12,7 @@
         <div class="nav-content">
           <div class="logo-section">
             <img src="/icon.svg" width="45" height="45" alt="Logo" class="logo-img" />
-            <span class="logo-text">0Code Monit</span>
+            <span class="logo-text">0Code™ Monit</span>
           </div>
           <div class="nav-links">
             <router-link to="/home" class="nav-link">Home</router-link>
@@ -65,7 +65,10 @@
     <footer class="footer">
       <div class="container-pro">
         <div class="footer-bottom">
-          <p>© 2025 0Code Monit. All rights reserved.</p>
+          <div>
+            <p>© 2025 0Code™ Monit. All rights reserved.</p>
+            <p>0Code™ is a brand under development</p>
+          </div>
           <router-link to="/dashboard" class="admin-link">Admin Panel</router-link>
         </div>
       </div>
@@ -74,9 +77,10 @@
 </template>
 
 <script>
-export default { name: 'DocsPage' };
+export default { name: "DocsPage" };
 </script>
 
 <style scoped>
 @import "./SharedModernStyles.css";
 </style>
+

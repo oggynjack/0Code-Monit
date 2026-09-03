@@ -1,0 +1,33 @@
+{
+    "name": "@oggynjack/0code-push",
+    "version": "1.0.1",
+    "description": "Push health notification binary for Monit",
+    "devDependencies": {
+        "docker": "^27.0.0"
+    },
+    "bin": {
+        "0code-push": "./0code-push.js"
+    },
+    "scripts": {
+        "build:linux-amd64": "node build.js linux amd64",
+        "build:linux-arm64": "node build.js linux arm64",
+        "build:linux-arm": "node build.js linux arm",
+        "build:windows-amd64": "node build.js windows amd64",
+        "build:all": "node build.js"
+    },
+    "keywords": [
+        "0code-monit",
+        "uptime",
+        "monitoring",
+        "health",
+        "push",
+        "webhook"
+    ],
+    "author": "oggynjack <lakhijass632@gmail.com>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/oggynjack/0Code-Monit.git",
+        "directory": "0code-sdk/0code-push"
+    }
+}

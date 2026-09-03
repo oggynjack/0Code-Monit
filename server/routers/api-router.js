@@ -13,7 +13,7 @@ const Monitor = require("../model/monitor");
 const dayjs = require("dayjs");
 const { UP, MAINTENANCE, DOWN, PENDING, flipStatus, log, badgeConstants } = require("../../src/util");
 const StatusPage = require("../model/status_page");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { CodeMonitServer } = require("../0Code-Monit-server");
 const { makeBadge } = require("badge-maker");
 const { Prometheus } = require("../prometheus");
 const Database = require("../database");
@@ -22,8 +22,18 @@ const { UptimeCalculator } = require("../uptime-calculator");
 let router = express.Router();
 
 let cache = apicache.middleware;
-const server = UptimeKumaServer.getInstance();
+const server = CodeMonitServer.getInstance();
 let io = server.io;
+
+router.get("/api/health", (request, response) => {
+    allowDevAllOrigin(response);
+    response.status(200).json({
+        status: "ok",
+        service: "0code-monit",
+        version: require("../../package.json").version,
+        timestamp: new Date().toISOString()
+    });
+});
 
 router.get("/api/entry-page", async (request, response) => {
     allowDevAllOrigin(response);

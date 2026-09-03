@@ -5,8 +5,10 @@ module.exports = {
             script: "server/server.js",
             instances: 1,
             exec_mode: "fork",
+            cwd: "D:\\Projects\\0code-monit",
+            interpreter: "node",
             watch: false,
-            max_memory_restart: "500M",
+            max_memory_restart: "300M",
             env: {
                 NODE_ENV: "production",
                 PORT: 4010,

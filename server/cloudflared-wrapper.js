@@ -38,10 +38,14 @@ class CloudflaredTunnel {
     }
 
     /**
-     *
+     * Check if cloudflared binary is installed
      */
     checkInstalled() {
-        return commandExistsSync(this.cloudflaredPath);
+        try {
+            return commandExistsSync(this.cloudflaredPath);
+        } catch (_) {
+            return false;
+        }
     }
 
     /**
@@ -58,69 +62,81 @@ class CloudflaredTunnel {
      * @param code
      */
     emitChange(msg, code) {
-        if (this.change) {
-            this.change(this.running, msg, code);
-        }
+        try {
+            if (this.change) {
+                this.change(this.running, msg, code);
+            }
+        } catch (_) {}
     }
 
     /**
      * @param msg
      */
     emitError(msg) {
-        if (this.error) {
-            this.error(msg);
-        }
+        try {
+            if (this.error) {
+                this.error(msg);
+            }
+        } catch (_) {}
     }
 
     /**
      *
      */
     start() {
-        if (this.childProcess) {
-            this.emitError("Already started");
-            return;
-        }
-        if (!this.checkInstalled()) {
-            this.emitError(`Cloudflared error: ${this.cloudflaredPath} is not found`);
-            return;
-        }
-        if (!this.token) {
-            this.emitError("Cloudflared error: Token is not set");
-            return;
-        }
+        try {
+            if (this.childProcess) {
+                this.emitError("Already started");
+                return;
+            }
+            if (!this.checkInstalled()) {
+                this.emitError(`Cloudflared error: ${this.cloudflaredPath} is not found`);
+                return;
+            }
+            if (!this.token) {
+                this.emitError("Cloudflared error: Token is not set");
+                return;
+            }
 
-        const args = [ "tunnel", "--no-autoupdate", "run", "--token", this.token ];
+            const args = [ "tunnel", "--no-autoupdate", "run", "--token", this.token ];
 
-        this.running = true;
-        this.emitChange("Starting cloudflared");
-        // Hide the console window on Windows
-        this.childProcess = childProcess.spawn(this.cloudflaredPath, args, { windowsHide: true });
-        // Keep logs visible in parent console
-        if (this.childProcess.stdout) {
-            this.childProcess.stdout.pipe(process.stdout);
-        }
-        if (this.childProcess.stderr) {
-            this.childProcess.stderr.pipe(process.stderr);
-        }
+            this.running = true;
+            this.emitChange("Starting cloudflared");
+            // Hide the console window on Windows
+            this.childProcess = childProcess.spawn(this.cloudflaredPath, args, { windowsHide: true });
+            
+            if (this.childProcess.stdout) {
+                this.childProcess.stdout.pipe(process.stdout);
+            }
+            if (this.childProcess.stderr) {
+                this.childProcess.stderr.pipe(process.stderr);
+            }
 
-        this.childProcess.on("close", (code) => {
+            this.childProcess.on("close", (code) => {
+                this.running = false;
+                this.childProcess = null;
+                this.emitChange("Stopped cloudflared", code);
+            });
+
+            this.childProcess.on("error", (err) => {
+                this.running = false;
+                this.childProcess = null;
+                if (err.code === "ENOENT") {
+                    this.emitError(`Cloudflared error: ${this.cloudflaredPath} is not found`);
+                } else {
+                    this.emitError(err.message || String(err));
+                }
+            });
+
+            if (this.childProcess.stderr) {
+                this.childProcess.stderr.on("data", (data) => {
+                    this.emitError(data.toString());
+                });
+            }
+        } catch (e) {
             this.running = false;
             this.childProcess = null;
-            this.emitChange("Stopped cloudflared", code);
-        });
-
-        this.childProcess.on("error", (err) => {
-            if (err.code === "ENOENT") {
-                this.emitError(`Cloudflared error: ${this.cloudflaredPath} is not found`);
-            } else {
-                this.emitError(err);
-            }
-        });
-
-        if (this.childProcess.stderr) {
-            this.childProcess.stderr.on("data", (data) => {
-                this.emitError(data.toString());
-            });
+            this.emitError(`Cloudflared spawn failed: ${e.message}`);
         }
     }
 
@@ -128,11 +144,16 @@ class CloudflaredTunnel {
      *
      */
     stop() {
-        this.emitChange("Stopping cloudflared");
-        if (this.childProcess) {
-            this.childProcess.kill("SIGINT");
+        try {
+            this.emitChange("Stopping cloudflared");
+            if (this.childProcess) {
+                this.childProcess.kill("SIGINT");
+                this.childProcess = null;
+            }
+        } catch (_) {
             this.childProcess = null;
         }
+        this.running = false;
     }
 }
 

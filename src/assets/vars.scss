@@ -1,20 +1,20 @@
-$primary: #00bfff; // Electric blue
-$danger: #dc3545;
-$warning: #f8a306;
-$maintenance: #1e90ff; // Dodger blue for maintenance
-$link-color: #111;
-$border-radius: 50rem;
-$secondary-text: #aaa;
+$primary: #00e5ff; // Neon cyan
+$danger: #ff0055; // Neon pink/red
+$warning: #ffb300; // Neon orange
+$maintenance: #8a2be2; // Purple
+$link-color: #00e5ff;
+$border-radius: 8px; // Sleek modern corners instead of fully round
+$secondary-text: #a0aab5;
 
-$highlight: #87ceeb; // Sky blue for highlight
-$highlight-white: #e6f3ff; // Light blue highlight
+$highlight: #00b8cc; // Slightly darker cyan
+$highlight-white: #e0faff; 
 
-$dark-font-color: #b1b8c0;
+$dark-font-color: #d0d8e0;
 $dark-font-color2: #020b05;
-$dark-bg: #0d1117;
-$dark-bg2: #070a10;
-$dark-border-color: #1d2634;
-$dark-header-bg: #161b22;
+$dark-bg: #0d0f15; // Darker tech background
+$dark-bg2: #050608;
+$dark-border-color: #1a1f2c;
+$dark-header-bg: #0b0e14;
 
 $easing-in: cubic-bezier(0.54, 0.78, 0.55, 0.97);
 $easing-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);

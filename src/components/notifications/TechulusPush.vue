@@ -68,7 +68,7 @@ export default {
             this.$parent.notification.pushTitle = "0Code-Monit";
         }
         if (typeof this.$parent.notification.pushChannel === "undefined") {
-            this.$parent.notification.pushChannel = "uptime-kuma";
+            this.$parent.notification.pushChannel = "0Code-Monit";
         }
         if (typeof this.$parent.notification.pushSound === "undefined") {
             this.$parent.notification.pushSound = "default";

@@ -9,7 +9,7 @@ const mysql = require("mysql2/promise");
 
 /**
  *  A standalone express app that is used to setup a database
- *  It is used when db-config.json and kuma.db are not found or invalid
+ *  It is used when db-config.json and 0code-monit.db are not found or invalid
  *  Once it is configured, it will shut down and start the main server
  */
 class SetupDatabase {
@@ -26,14 +26,14 @@ class SetupDatabase {
     runningSetup = false;
     /**
      * @inheritDoc
-     * @type {UptimeKumaServer}
+     * @type {CodeMonitServer}
      * @private
      */
     server;
 
     /**
      * @param  {object} args The arguments passed from the command line
-     * @param  {UptimeKumaServer} server the main server instance
+     * @param  {CodeMonitServer} server the main server instance
      */
     constructor(args, server) {
         this.server = server;
@@ -41,8 +41,8 @@ class SetupDatabase {
         // Priority: env > db-config.json
         // If env is provided, write it to db-config.json
         // If db-config.json is found, check if it is valid
-        // If db-config.json is not found or invalid, check if kuma.db is found
-        // If kuma.db is not found, show setup page
+        // If db-config.json is not found or invalid, check if 0code-monit.db is found
+        // If 0code-monit.db is not found, show setup page
 
         let dbConfig;
 
@@ -54,11 +54,11 @@ class SetupDatabase {
         } catch (e) {
             log.info("setup-database", "db-config.json is not found or invalid: " + e.message);
 
-            // Check if kuma.db is found (1.X.X users), generate db-config.json
-            if (fs.existsSync(path.join(Database.dataDir, "kuma.db"))) {
+            // Check if 0code-monit.db is found (1.X.X users), generate db-config.json
+            if (fs.existsSync(path.join(Database.dataDir, "0code-monit.db"))) {
                 this.needSetup = false;
 
-                log.info("setup-database", "kuma.db is found, generate db-config.json");
+                log.info("setup-database", "0code-monit.db is found, generate db-config.json");
                 Database.writeDBConfig({
                     type: "sqlite",
                 });
@@ -68,16 +68,16 @@ class SetupDatabase {
             dbConfig = {};
         }
 
-const DB_TYPE = process.env.CODE_MONIT_DB_TYPE || process.env.UPTIME_KUMA_DB_TYPE;
+const DB_TYPE = process.env.CODE_MONIT_DB_TYPE ;
 if (DB_TYPE) {
     this.needSetup = false;
     log.info("setup-database", `${DB_TYPE} is provided by env, try to override db-config.json`);
     dbConfig.type = DB_TYPE;
-    dbConfig.hostname = process.env.CODE_MONIT_DB_HOSTNAME || process.env.UPTIME_KUMA_DB_HOSTNAME;
-    dbConfig.port = process.env.CODE_MONIT_DB_PORT || process.env.UPTIME_KUMA_DB_PORT;
-    dbConfig.dbName = process.env.CODE_MONIT_DB_NAME || process.env.UPTIME_KUMA_DB_NAME;
-    dbConfig.username = process.env.CODE_MONIT_DB_USERNAME || process.env.UPTIME_KUMA_DB_USERNAME;
-    dbConfig.password = process.env.CODE_MONIT_DB_PASSWORD || process.env.UPTIME_KUMA_DB_PASSWORD;
+    dbConfig.hostname = process.env.CODE_MONIT_DB_HOSTNAME ;
+    dbConfig.port = process.env.CODE_MONIT_DB_PORT ;
+    dbConfig.dbName = process.env.CODE_MONIT_DB_NAME ;
+    dbConfig.username = process.env.CODE_MONIT_DB_USERNAME ;
+    dbConfig.password = process.env.CODE_MONIT_DB_PASSWORD ;
     Database.writeDBConfig(dbConfig);
 }
 
@@ -96,7 +96,7 @@ if (DB_TYPE) {
      * @returns {boolean} true if the embedded MariaDB is enabled
      */
     isEnabledEmbeddedMariaDB() {
-return (process.env.CODE_MONIT_ENABLE_EMBEDDED_MARIADB === "1") || (process.env.UPTIME_KUMA_ENABLE_EMBEDDED_MARIADB === "1");
+return (process.env.CODE_MONIT_ENABLE_EMBEDDED_MARIADB === "1");
     }
 
     /**

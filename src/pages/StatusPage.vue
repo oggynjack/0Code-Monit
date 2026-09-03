@@ -342,6 +342,7 @@
                 <p v-if="config.showPoweredBy" data-testid="powered-by">
                     {{ $t("Powered by") }} <a target="_blank" rel="noopener noreferrer" href="https://github.com/oggynjack/0Code-Monit">0Code-Monit</a>
                 </p>
+                <p>0Code™ is a brand under development</p>
 
                 <div class="refresh-info mb-2">
                     <div>{{ $t("Last Updated") }}:  {{ lastUpdateTimeDisplay }}</div>

@@ -59,7 +59,7 @@ class Teams extends NotificationProvider {
         if (dashboardUrl) {
             actions.push({
                 "type": "Action.OpenUrl",
-                "title": "Visit Uptime Kuma",
+                "title": "Visit 0Code-Monit",
                 "url": dashboardUrl
             });
         }
@@ -126,8 +126,8 @@ class Teams extends NotificationProvider {
                                                         "type": "Image",
                                                         "width": "32px",
                                                         "style": "Person",
-                                                        "url": "https://raw.githubusercontent.com/louislam/uptime-kuma/master/public/icon.png",
-                                                        "altText": "Uptime Kuma Logo"
+                                                        "url": "https://raw.githubusercontent.com/oggynjack/0Code-Monit/master/public/icon.png",
+                                                        "altText": "0Code-Monit Logo"
                                                     }
                                                 ]
                                             },
@@ -145,7 +145,7 @@ class Teams extends NotificationProvider {
                                                         "type": "TextBlock",
                                                         "size": "Small",
                                                         "weight": "Default",
-                                                        "text": "Uptime Kuma Alert",
+                                                        "text": "0Code-Monit Alert",
                                                         "isSubtle": true,
                                                         "spacing": "None"
                                                     }

@@ -24,7 +24,7 @@ class ClickSendSMS extends NotificationProvider {
                     {
                         "body": msg.replace(/[^\x00-\x7F]/g, ""),
                         "to": notification.clicksendsmsToNumber,
-                        "source": "uptime-kuma",
+                        "source": "0Code-Monit",
                         "from": notification.clicksendsmsSenderName,
                     }
                 ]

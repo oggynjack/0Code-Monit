@@ -17,6 +17,12 @@ dist-ssr
 /out
 /tmp
 .env
+.env.*
+!.env.example
+client_secret*.json
+*.key
+*.pem
+*.p12
 
 # Binaries
 extra/healthcheck.exe
@@ -38,8 +44,7 @@ logo/
 # Embedded repos
 0Code-Monit/
 
-# Development and testing (keep locally, exclude from repo)
-extra/
+# Development and testing
 test/
 config/jest-backend.config.js
 config/playwright.config.js
@@ -54,16 +59,14 @@ config/playwright.config.js
 .github/config/
 .github/FUNDING.yml
 
-# Deployment-specific configs
+# Deployment-specific local overrides
 nginx-0code-monit.conf
 cloudflare-tunnel-config.yaml
 CNAME
-DEPLOYMENT.md
 
 # Development scripts
 start
 stop
-test-email.js
 
 # Docker development files
 docker/builder-go.dockerfile

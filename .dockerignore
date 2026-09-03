@@ -2,6 +2,7 @@
 /node_modules
 /data*
 /out
+/dist
 /test
 /kubernetes
 /.do
@@ -32,10 +33,11 @@ tsconfig.json
 /extra/healthcheck.exe
 /extra/healthcheck
 /extra/exe-builder
-/extra/uptime-kuma-push
+/extra/uptime-0code-monit-push
 
 # Comment the following line if you want to rebuild the healthcheck binary
 /extra/healthcheck-armv7
+/0code-sdk
 
 
 ### .gitignore content (commented rules are duplicated)

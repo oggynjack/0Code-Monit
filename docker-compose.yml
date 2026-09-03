@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  0code-monit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: 0code-monit:latest
+    container_name: 0code-monit
+    restart: unless-stopped
+
+    ports:
+      - "4010:4010"
+
+    environment:
+      # Application
+      - NODE_ENV=production
+      - CODE_MONIT_IS_CONTAINER=1
+
+      # Port — must match EXPOSE and port mapping above
+      - PORT=4010
+
+      # SMTP Configuration
+      - SMTP_HOST=${SMTP_HOST:-smtp.hostinger.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER:-support@0code.uk}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM:-noreply@0code.uk}
+
+      # Application settings
+      - APP_NAME=${APP_NAME:-0Code Monit}
+      - APP_URL=${APP_URL:-https://monit.0code.uk}
+
+      # Hide debug logs
+      - CODE_MONIT_HIDE_LOG=${CODE_MONIT_HIDE_LOG:-debug_monitor,debug_cert,debug_settings,debug_uptime-calc,debug_db}
+
+    volumes:
+      # Persist database and application data
+      - ./data:/app/data
+      - ./db:/app/db
+      # Optional: Mount logs directory
+      # - ./logs:/app/logs
+
+    networks:
+      - 0code-monit-network
+
+    healthcheck:
+      test: [ "CMD", "node", "extra/healthcheck.js" ]
+      interval: 60s
+      timeout: 30s
+      start_period: 180s
+      retries: 5
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  0code-monit-network:
+    driver: bridge

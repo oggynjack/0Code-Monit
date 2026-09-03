@@ -47,7 +47,7 @@ occ talk:bot:setup &lt;BotId&gt; &lt;ConversationToken&gt;
                 </pre>
 
                 <i18n-t tag="p" keypath="Read more:">
-                    <a href="https://nextcloud-talk.readthedocs.io/en/latest/bot-list/#uptime-kuma" target="_blank">https://nextcloud-talk.readthedocs.io</a>
+                    <a href="https://nextcloud-talk.readthedocs.io/en/latest/bot-list/#0Code-Monit" target="_blank">https://nextcloud-talk.readthedocs.io</a>
                 </i18n-t>
             </div>
         </div>

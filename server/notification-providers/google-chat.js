@@ -29,7 +29,7 @@ class GoogleChat extends NotificationProvider {
             }
 
             let chatHeader = {
-                title: "Uptime Kuma Alert",
+                title: "0Code-Monit Alert",
             };
 
             if (monitorJSON && heartbeatJSON) {
@@ -65,7 +65,7 @@ class GoogleChat extends NotificationProvider {
                     buttonList: {
                         buttons: [
                             {
-                                text: "Visit Uptime Kuma",
+                                text: "Visit 0Code-Monit",
                                 onClick: {
                                     openLink: {
                                         url: baseURL + urlPath,

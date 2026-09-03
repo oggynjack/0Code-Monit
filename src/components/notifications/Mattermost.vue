@@ -19,7 +19,7 @@
                 {{ $t("aboutMattermostChannelName") }}
             </p>
             <p style="margin-top: 8px;">
-                {{ $t("aboutKumaURL") }}
+                {{ $t("about0CodeMonitURL") }}
             </p>
             <p style="margin-top: 8px;">
                 {{ $t("aboutIconURL") }}

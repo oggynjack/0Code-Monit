@@ -1,16 +1,55 @@
 const express = require("express");
 const { R } = require("redbean-node");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { CodeMonitServer } = require("../0Code-Monit-server");
 const passwordHash = require("../password-hash");
 const { allowDevAllOrigin } = require("../util-server");
 const crypto = require("crypto");
 const APIKey = require("../model/api_key");
 
 const router = express.Router();
-const server = UptimeKumaServer.getInstance();
+const server = CodeMonitServer.getInstance();
 
 // Per-user online visitor last-seen map: Map<userID, Map<sid, lastSeenEpochMs>>
 const onlineByUser = new Map();
+
+// In-memory key verification cache to avoid expensive bcrypt/DB queries on every beacon
+// Map<formattedKey, { bean: object, expiry: number }>
+const apiKeyCache = new Map();
+const KEY_CACHE_TTL_MS = 60 * 1000;
+
+// Batch queue for high-throughput non-blocking writes
+let eventQueue = [];
+const BATCH_FLUSH_INTERVAL_MS = 3000;
+const MAX_BATCH_SIZE = 50;
+
+async function flushEventQueue() {
+    if (eventQueue.length === 0) {
+        return;
+    }
+    const batch = eventQueue.splice(0, eventQueue.length);
+    try {
+        for (const item of batch) {
+            const bean = R.dispense("analytics_event");
+            bean.time = item.time;
+            bean.user_id = item.user_id;
+            bean.api_key_id = item.api_key_id;
+            bean.url = item.url;
+            bean.path = item.path;
+            bean.referrer = item.referrer;
+            bean.title = item.title;
+            bean.ua = item.ua;
+            bean.sid = item.sid;
+            await R.store(bean);
+        }
+    } catch (err) {
+        // Fallback or log if needed, do not crash
+    }
+}
+
+// Background batch flush timer
+setInterval(() => {
+    flushEventQueue().catch(() => {});
+}, BATCH_FLUSH_INTERVAL_MS);
 
 /**
  * @param map
@@ -27,31 +66,36 @@ function pruneAndCountOnline(map, now, ttlMs = 60000) {
 }
 
 /**
- * @param k
+ * Parses API key supporting cm (0Code-Monit) and legacy prefixes
+ * @param {string} k
  */
 function parseFormattedKey(k) {
-    // Expect format: uk<id>_<clear>
-    if (typeof k !== "string" || !k.startsWith("uk")) {
+    if (typeof k !== "string") {
         throw new Error("Invalid key format");
     }
-    const underscore = k.indexOf("_");
-    if (underscore === -1) {
+    const match = k.match(/^(?:cm|0cm|uk)(\d+)_(.+)$/);
+    if (!match) {
         throw new Error("Invalid key format");
     }
-    const idStr = k.substring(2, underscore);
-    const clear = k.substring(underscore + 1);
-    const id = parseInt(idStr, 10);
+    const id = parseInt(match[1], 10);
+    const clear = match[2];
     if (!id || !clear) {
         throw new Error("Invalid key format");
     }
-    return { id,
-        clear };
+    return { id, clear };
 }
 
 /**
- * @param formattedKey
+ * Validates API key with in-memory TTL caching
+ * @param {string} formattedKey
  */
 async function validateAPIKey(formattedKey) {
+    const cached = apiKeyCache.get(formattedKey);
+    const now = Date.now();
+    if (cached && cached.expiry > now) {
+        return cached.bean;
+    }
+
     const { id, clear } = parseFormattedKey(formattedKey);
     const bean = await R.findOne("api_key", " id = ? ", [ id ]);
     if (!bean) {
@@ -64,11 +108,17 @@ async function validateAPIKey(formattedKey) {
         throw new Error("API key invalid");
     }
     // Expiry check via model API
-    const apiKeyModel = APIKey.prototype; // reuse methods
-    apiKeyModel.__proto__ = bean; // temporarily bind
+    const apiKeyModel = APIKey.prototype;
+    apiKeyModel.__proto__ = bean;
     if (apiKeyModel.getStatus && apiKeyModel.getStatus.call(bean) === "expired") {
         throw new Error("API key expired");
     }
+
+    apiKeyCache.set(formattedKey, {
+        bean,
+        expiry: now + KEY_CACHE_TTL_MS,
+    });
+
     return bean;
 }
 
@@ -98,16 +148,17 @@ function deriveSID(req, provided) {
 function sanitizeURL(u) {
     try {
         const url = new URL(u);
-        // Drop query to avoid PII in live stream, keep path + host
         return {
             full: url.href,
             origin: url.origin,
             path: url.pathname,
         };
     } catch (_) {
-        return { full: u || "",
+        return {
+            full: u || "",
             origin: "",
-            path: "" };
+            path: "",
+        };
     }
 }
 
@@ -117,7 +168,7 @@ router.get("/analytics.js", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=300");
 
     const k = req.query.k || "";
-    const js = `(()=>{try{var s=document.currentScript;var k='${(k||"").toString().replace(/'/g, "\\'")}';if(!k&&s){k=s.getAttribute('data-key')||new URL(s.src).searchParams.get('k')||'';}if(!k){console.warn('0Code-Monit: missing data-key');return;}var sid;try{sid=localStorage.getItem('cm_sid');if(!sid){sid=Math.random().toString(36).slice(2,12);localStorage.setItem('cm_sid',sid);}}catch(e){sid=Math.random().toString(36).slice(2,12);}function send(){var u=encodeURIComponent(location.href);var r=encodeURIComponent(document.referrer||'');var t=encodeURIComponent(document.title||'');var base=(function(){try{return s&&s.src?new URL(s.src).origin:location.origin;}catch(e){return location.origin;}})();var url=base+'/collect?k='+encodeURIComponent(k)+'&u='+u+'&r='+r+'&t='+t+'&sid='+encodeURIComponent(sid);if(navigator.sendBeacon){try{navigator.sendBeacon(url);}catch(e){fetch(url,{mode:'no-cors',keepalive:true,credentials:'omit'}).catch(()=>{});}}else{fetch(url,{mode:'no-cors',keepalive:true,credentials:'omit'}).catch(()=>{});} }send();document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){send();}});window.addEventListener('pagehide',send);}catch(e){}})();`
+    const js = `(()=>{try{var s=document.currentScript;var k='${(k||"").toString().replace(/'/g, "\\'")}';if(!k&&s){k=s.getAttribute('data-key')||new URL(s.src).searchParams.get('k')||'';}if(!k){console.warn('0Code-Monit: missing data-key');return;}var sid;try{sid=localStorage.getItem('cm_sid');if(!sid){sid=Math.random().toString(36).slice(2,12);localStorage.setItem('cm_sid',sid);}}catch(e){sid=Math.random().toString(36).slice(2,12);}function send(){var u=encodeURIComponent(location.href);var r=encodeURIComponent(document.referrer||'');var t=encodeURIComponent(document.title||'');var base=(function(){try{return s&&s.src?new URL(s.src).origin:location.origin;}catch(e){return location.origin;}})();var url=base+'/collect?k='+encodeURIComponent(k)+'&u='+u+'&r='+r+'&t='+t+'&sid='+encodeURIComponent(sid);if(navigator.sendBeacon){try{navigator.sendBeacon(url);}catch(e){fetch(url,{mode:'no-cors',keepalive:true,credentials:'omit'}).catch(()=>{});}}else{fetch(url,{mode:'no-cors',keepalive:true,credentials:'omit'}).catch(()=>{});} }send();document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){send();}});window.addEventListener('pagehide',send);}catch(e){}})();`;
     res.end(js);
 });
 
@@ -128,7 +179,6 @@ router.all("/collect", express.urlencoded({ extended: false }), express.json(), 
         const apiKey = await validateAPIKey(k);
         const userID = apiKey.user_id;
 
-        // const ip = await getClientIP(req);
         const ua = req.headers["user-agent"] || "";
         const urlStr = (req.query.u || req.body?.u || req.headers.referer || "").toString();
         const ref = (req.query.r || req.body?.r || "").toString();
@@ -137,24 +187,22 @@ router.all("/collect", express.urlencoded({ extended: false }), express.json(), 
         const dt = R.isoDateTime();
         const url = sanitizeURL(urlStr);
 
-        // Store minimal event (non-blocking)
-        (async () => {
-            try {
-                const bean = R.dispense("analytics_event");
-                bean.time = dt;
-                bean.user_id = userID;
-                bean.api_key_id = apiKey.id;
-                bean.url = url.full;
-                bean.path = url.path;
-                bean.referrer = ref;
-                bean.title = title;
-                bean.ua = ua;
-                bean.sid = sid;
-                await R.store(bean);
-            } catch (e) {
-                // ignore store errors in live path
-            }
-        })();
+        // Queue event for batched non-blocking flush
+        eventQueue.push({
+            time: dt,
+            user_id: userID,
+            api_key_id: apiKey.id,
+            url: url.full,
+            path: url.path,
+            referrer: ref,
+            title,
+            ua,
+            sid,
+        });
+
+        if (eventQueue.length >= MAX_BATCH_SIZE) {
+            flushEventQueue().catch(() => {});
+        }
 
         // Update online counters
         const now = Date.now();
@@ -166,17 +214,19 @@ router.all("/collect", express.urlencoded({ extended: false }), express.json(), 
         map.set(sid, now);
         const online = pruneAndCountOnline(map, now);
 
-        // Broadcast live event
-        server.io.to(userID).emit("analyticsEvent", {
-            time: dt,
-            url: url.full,
-            path: url.path,
-            origin: url.origin,
-            referrer: ref,
-            title,
-            ua,
-        });
-        server.io.to(userID).emit("analyticsOnline", { online });
+        // Broadcast live event via websocket
+        if (server.io) {
+            server.io.to(userID).emit("analyticsEvent", {
+                time: dt,
+                url: url.full,
+                path: url.path,
+                origin: url.origin,
+                referrer: ref,
+                title,
+                ua,
+            });
+            server.io.to(userID).emit("analyticsOnline", { online });
+        }
 
         res.status(204).end();
     } catch (e) {

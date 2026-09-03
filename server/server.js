@@ -52,7 +52,7 @@ if (!process.env.CODE_MONIT_WS_ORIGIN_CHECK) {
 }
 
 log.info("server", "Env: " + process.env.NODE_ENV);
-log.debug("server", "Inside Container: " + ((process.env.CODE_MONIT_IS_CONTAINER === "1") || (process.env.ZEROCODE_MONIT_IS_CONTAINER === "1") || (process.env.UPTIME_KUMA_IS_CONTAINER === "1")));
+log.debug("server", "Inside Container: " + ((process.env.CODE_MONIT_IS_CONTAINER === "1")));
 
 if (process.env.CODE_MONIT_WS_ORIGIN_CHECK === "bypass") {
     log.warn("server", "WebSocket Origin Check: " + process.env.CODE_MONIT_WS_ORIGIN_CHECK);
@@ -80,7 +80,7 @@ log.debug("server", "Importing 2FA Modules");
 const notp = require("notp");
 const base32 = require("thirty-two");
 
-const { CodeMonitServer } = require("./uptime-kuma-server");
+const { CodeMonitServer } = require("./0Code-Monit-server");
 const server = CodeMonitServer.getInstance();
 const io = module.exports.io = server.io;
 const app = server.app;
@@ -116,8 +116,8 @@ if (hostname) {
 
 const port = config.port;
 
-const disableFrameSameOrigin = !!(process.env.CODE_MONIT_DISABLE_FRAME_SAMEORIGIN || process.env.UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN) || args["disable-frame-sameorigin"] || false;
-const cloudflaredToken = args["cloudflared-token"] || process.env.CODE_MONIT_CLOUDFLARED_TOKEN || process.env.UPTIME_KUMA_CLOUDFLARED_TOKEN || undefined;
+const disableFrameSameOrigin = !!(process.env.CODE_MONIT_DISABLE_FRAME_SAMEORIGIN ) || args["disable-frame-sameorigin"] || false;
+const cloudflaredToken = args["cloudflared-token"] || process.env.CODE_MONIT_CLOUDFLARED_TOKEN  || undefined;
 
 // 2FA / notp verification defaults
 const twoFAVerifyOptions = {

@@ -1,7 +1,7 @@
 const { BeanModel } = require("redbean-node/dist/bean-model");
 const { R } = require("redbean-node");
 const cheerio = require("cheerio");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { CodeMonitServer } = require("../0Code-Monit-server");
 const jsesc = require("jsesc");
 const googleAnalytics = require("../google-analytics");
 const { marked } = require("marked");
@@ -14,7 +14,7 @@ const { STATUS_PAGE_ALL_DOWN, STATUS_PAGE_ALL_UP, STATUS_PAGE_MAINTENANCE, STATU
 class StatusPage extends BeanModel {
 
     /**
-     * Like this: { "test-uptime.kuma.pet": "default" }
+     * Like this: { "test-uptime.0code.uk": "default" }
      * @type {{}}
      */
     static domainMappingList = { };
@@ -39,7 +39,7 @@ class StatusPage extends BeanModel {
         if (statusPage) {
             response.send(await StatusPage.renderRSS(statusPage, slug));
         } else {
-            response.status(404).send(UptimeKumaServer.getInstance().indexHTML);
+            response.status(404).send(CodeMonitServer.getInstance().indexHTML);
         }
     }
 
@@ -64,7 +64,7 @@ class StatusPage extends BeanModel {
         if (statusPage) {
             response.send(await StatusPage.renderHTML(indexHTML, statusPage));
         } else {
-            response.status(404).send(UptimeKumaServer.getInstance().indexHTML);
+            response.status(404).send(CodeMonitServer.getInstance().indexHTML);
         }
     }
 
@@ -90,7 +90,7 @@ class StatusPage extends BeanModel {
         let host = `${proto}://${config.hostname || "localhost"}:${config.port}${basePath}/${slug}`;
 
         const feed = new Feed({
-            title: "uptime kuma rss feed",
+            title: "0Code-Monit rss feed",
             description: `current status: ${statusDescription}`,
             link: host,
             language: "en", // optional, used only in RSS 2.0, possible values: http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
@@ -314,7 +314,7 @@ class StatusPage extends BeanModel {
 
     /**
      * Loads domain mapping from DB
-     * Return object like this: { "test-uptime.kuma.pet": "default" }
+     * Return object like this: { "test-uptime.0code.uk": "default" }
      * @returns {Promise<void>}
      */
     static async loadDomainMappingList() {
@@ -490,7 +490,7 @@ class StatusPage extends BeanModel {
             `, [ statusPageId ]);
 
             for (const maintenanceID of maintenanceIDList) {
-                let maintenance = UptimeKumaServer.getInstance().getMaintenance(maintenanceID);
+                let maintenance = CodeMonitServer.getInstance().getMaintenance(maintenanceID);
                 if (maintenance && await maintenance.isUnderMaintenance()) {
                     publicMaintenanceList.push(await maintenance.toPublicJSON());
                 }

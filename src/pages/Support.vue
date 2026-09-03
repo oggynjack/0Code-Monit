@@ -12,7 +12,7 @@
         <div class="nav-content">
           <div class="logo-section">
             <img src="/icon.svg" width="45" height="45" alt="Logo" class="logo-img" />
-            <span class="logo-text">0Code Monit</span>
+            <span class="logo-text">0Code™ Monit</span>
           </div>
           <div class="nav-links">
             <router-link to="/home" class="nav-link">Home</router-link>
@@ -26,7 +26,7 @@
     <section class="hero-section small">
       <div class="container-pro">
         <h1 class="page-title"><i class="fas fa-life-ring me-2"></i>Support</h1>
-        <p class="page-subtitle">We’re here to help you 24/7.</p>
+        <p class="page-subtitle">We're here to help you 24/7.</p>
       </div>
     </section>
 
@@ -41,12 +41,12 @@
           <div class="doc-card">
             <h3>Knowledge Base</h3>
             <p>Read articles and FAQs to get quick answers.</p>
-            <router-link to="/docs" class="nav-link">Go to Docs →</router-link>
+            <router-link to="/docs" class="nav-link">Go to Docs -&gt;</router-link>
           </div>
           <div class="doc-card">
             <h3>Status</h3>
             <p>View system status and uptime information.</p>
-            <a href="/status" class="nav-link">Status Page →</a>
+            <a href="/status" class="nav-link">Status Page -&gt;</a>
           </div>
         </div>
       </div>
@@ -55,7 +55,10 @@
     <footer class="footer">
       <div class="container-pro">
         <div class="footer-bottom">
-          <p>© 2025 0Code Monit. All rights reserved.</p>
+          <div>
+            <p>© 2025 0Code™ Monit. All rights reserved.</p>
+            <p>0Code™ is a brand under development</p>
+          </div>
           <router-link to="/dashboard" class="admin-link">Admin Panel</router-link>
         </div>
       </div>
@@ -64,7 +67,7 @@
 </template>
 
 <script>
-export default { name: 'SupportPage' };
+export default { name: "SupportPage" };
 </script>
 
 <style scoped>

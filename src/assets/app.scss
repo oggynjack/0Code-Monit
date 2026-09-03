@@ -1,9 +1,27 @@
 @import "vars.scss";
 @import "multiselect.scss";
 @import "node_modules/bootstrap/scss/bootstrap";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@font-face {
+    font-family: 'Yaro Cut';
+    src: url('/YaroCut-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
 
 #app {
-    font-family: "Twemoji Country Flags", BlinkMacSystemFont, segoe ui, Roboto, helvetica neue, Arial, noto sans, sans-serif, apple color emoji, segoe ui emoji, segoe ui symbol, noto color emoji;
+    font-family: "Inter", "Twemoji Country Flags", BlinkMacSystemFont, segoe ui, Roboto, helvetica neue, Arial, noto sans, sans-serif, apple color emoji, segoe ui emoji, segoe ui symbol, noto color emoji;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.title {
+    font-family: "Yaro Cut", "Inter", sans-serif;
 }
 
 h1 {
@@ -56,6 +74,7 @@ textarea.form-control {
 // optgroup
 optgroup {
     color: #b1b1b1;
+
     option {
         color: #212529;
     }
@@ -64,6 +83,7 @@ optgroup {
 .dark {
     optgroup {
         color: #535864;
+
         option {
             color: $dark-font-color;
         }
@@ -118,7 +138,10 @@ optgroup {
 .btn-primary {
     color: white;
 
-    &:hover, &:active, &:focus, &.active {
+    &:hover,
+    &:active,
+    &:focus,
+    &.active {
         color: white;
         background-color: $highlight;
         border-color: $highlight;
@@ -145,7 +168,10 @@ optgroup {
 .btn-warning {
     color: white;
 
-    &:hover, &:active, &:focus, &.active {
+    &:hover,
+    &:active,
+    &:focus,
+    &.active {
         color: white;
     }
 }
@@ -153,7 +179,10 @@ optgroup {
 .btn-info {
     color: white;
 
-    &:hover, &:active, &:focus, &.active {
+    &:hover,
+    &:active,
+    &:focus,
+    &.active {
         color: white;
     }
 }
@@ -234,11 +263,13 @@ optgroup {
     background-color: #090c10;
     color: $dark-font-color;
 
-    mark, .mark {
+    mark,
+    .mark {
         background-color: #b6ad86;
     }
 
-    &::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb {
+    &::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-thumb {
         background: $dark-border-color;
     }
 
@@ -295,21 +326,24 @@ optgroup {
         background-color: $dark-bg;
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
         border-color: $dark-border-color;
     }
 
-    .form-control:disabled, .form-control[readonly] {
+    .form-control:disabled,
+    .form-control[readonly] {
         background-color: #232f3b;
         opacity: 1;
     }
 
-    .table-hover > tbody > tr:hover > * {
+    .table-hover>tbody>tr:hover>* {
         --bs-table-accent-bg: #070a10;
         color: $dark-font-color;
     }
 
-    .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    .nav-pills .nav-link.active,
+    .nav-pills .show>.nav-link {
         color: $dark-font-color2;
     }
 
@@ -338,7 +372,10 @@ optgroup {
     .btn-warning {
         color: $dark-font-color2;
 
-        &:hover, &:active, &:focus, &.active {
+        &:hover,
+        &:active,
+        &:focus,
+        &.active {
             color: $dark-font-color2;
         }
     }
@@ -399,6 +436,7 @@ optgroup {
     }
 
     .alert {
+
         &.bg-info,
         &.bg-warning,
         &.bg-danger,
@@ -491,6 +529,7 @@ optgroup {
         &.active {
             background-color: #cdf8f4;
         }
+
         .tags {
             // Removes margin to line up tags list with uptime percentage
             margin-left: -0.25rem;
@@ -591,7 +630,8 @@ h5.settings-subheading::after {
 }
 
 /* required class */
-.code-editor, .css-editor {
+.code-editor,
+.css-editor {
     /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
 
     border-radius: 1rem;
@@ -642,7 +682,7 @@ $shadow-box-padding: 20px;
 }
 
 .zoom-cursor {
-  cursor: zoom-in;
+    cursor: zoom-in;
 }
 
 // Localization

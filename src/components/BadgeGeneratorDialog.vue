@@ -112,8 +112,15 @@
                         <input id="value" v-model="badge.value" type="text" class="form-control">
                     </div>
 
-                    <div class="mb-3 pt-3 d-flex justify-content-center">
-                        <img :src="badgeURL" :alt="$t('Badge Preview')">
+                    <div class="mb-3 pt-3 d-flex justify-content-center align-items-center" style="min-height: 36px;">
+                        <img
+                            v-if="badgeURL"
+                            :src="badgeURL"
+                            :alt="$t('Badge Preview')"
+                            style="max-height: 30px;"
+                            @error="onBadgePreviewError"
+                        >
+                        <span v-else class="text-muted small">{{ $t('Fill in the options above to preview the badge') }}</span>
                     </div>
 
                     <div class="my-3">
@@ -239,7 +246,7 @@ export default {
             if (!this.monitor.id || !this.badge.type) {
                 return;
             }
-            let badgeURL = this.$root.baseURL + "/api/badge/" + this.monitor.id + "/" + this.badge.type;
+            let badgeURL = this.publicOrigin + "/api/badge/" + this.monitor.id + "/" + this.badge.type;
 
             let parameterList = {};
 
@@ -270,6 +277,16 @@ export default {
 
             return badgeURL;
         },
+
+        /**
+         * The public-facing origin of this page.
+         * Always uses window.location so it reflects the tunnel/proxy domain
+         * rather than any internal Docker localhost address stored in the DB.
+         * @returns {string}
+         */
+        publicOrigin() {
+            return location.protocol + "//" + location.host;
+        },
     },
 
     mounted() {
@@ -290,6 +307,20 @@ export default {
             };
 
             this.BadgeGeneratorModal.show();
+        },
+
+        /**
+         * Handle badge preview image load error
+         * @param {Event} e Error event
+         * @returns {void}
+         */
+        onBadgePreviewError(e) {
+            // Replace the broken img with an informational placeholder
+            e.target.style.display = "none";
+            const placeholder = document.createElement("span");
+            placeholder.className = "text-muted small";
+            placeholder.textContent = this.$t("Preview unavailable — open the badge URL directly to verify");
+            e.target.parentNode.appendChild(placeholder);
         },
     },
 };

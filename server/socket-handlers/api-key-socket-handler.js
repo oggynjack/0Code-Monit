@@ -29,7 +29,7 @@ module.exports.apiKeySocketHandler = (socket) => {
 
             // Append key ID and prefix to start of key separated by _, used to get
             // correct hash when validating key.
-            let formattedKey = "uk" + bean.id + "_" + clearKey;
+            let formattedKey = "cm" + bean.id + "_" + clearKey;
             await sendAPIKeyList(socket);
 
             // Enable API auth if the user creates a key, otherwise only basic

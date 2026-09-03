@@ -18,7 +18,7 @@ const { Proxy } = require("../proxy");
 const { demoMode } = require("../config");
 const version = require("../../package.json").version;
 const apicache = require("../modules/apicache");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { CodeMonitServer } = require("../0Code-Monit-server");
 const { DockerHost } = require("../docker");
 const Gamedig = require("gamedig");
 const jwt = require("jsonwebtoken");
@@ -85,7 +85,7 @@ class Monitor extends BeanModel {
         let screenshot = null;
 
         if (this.type === "real-browser") {
-            screenshot = "/screenshots/" + jwt.sign(this.id, UptimeKumaServer.getInstance().jwtSecret) + ".png";
+            screenshot = "/screenshots/" + jwt.sign(this.id, CodeMonitServer.getInstance().jwtSecret) + ".png";
         }
 
         const path = preloadData.paths.get(this.id) || [];
@@ -500,7 +500,7 @@ class Monitor extends BeanModel {
                         const randomFloatString = Math.random().toString(36);
                         const cacheBust = randomFloatString.substring(2);
                         options.params = {
-                            uptime_kuma_cachebuster: cacheBust,
+                            "0code_monit_cachebuster": cacheBust,
                         };
                     }
 
@@ -579,7 +579,7 @@ class Monitor extends BeanModel {
                     }
 
 {
-    const logEnv = process.env.CODE_MONIT_LOG_RESPONSE_BODY_MONITOR_ID || process.env.UPTIME_KUMA_LOG_RESPONSE_BODY_MONITOR_ID;
+    const logEnv = process.env.CODE_MONIT_LOG_RESPONSE_BODY_MONITOR_ID || process.env.ZEROCODE_MONIT_LOG_RESPONSE_BODY_MONITOR_ID;
     if (logEnv === this.id) {
         log.info("monitor", res.data);
     }
@@ -862,10 +862,10 @@ class Monitor extends BeanModel {
                     bean.status = UP;
                     bean.ping = dayjs().valueOf() - startTime;
 
-                } else if (this.type in UptimeKumaServer.monitorTypeList) {
+                } else if (this.type in CodeMonitServer.monitorTypeList) {
                     let startTime = dayjs().valueOf();
-                    const monitorType = UptimeKumaServer.monitorTypeList[this.type];
-                    await monitorType.check(this, bean, UptimeKumaServer.getInstance());
+                    const monitorType = CodeMonitServer.monitorTypeList[this.type];
+                    await monitorType.check(this, bean, CodeMonitServer.getInstance());
                     if (!bean.ping) {
                         bean.ping = dayjs().valueOf() - startTime;
                     }
@@ -880,7 +880,7 @@ class Monitor extends BeanModel {
                         {
                             allowAutoTopicCreation: this.kafkaProducerAllowAutoTopicCreation,
                             ssl: this.kafkaProducerSsl,
-                            clientId: `Uptime-Kuma/${version}`,
+                            clientId: `0Code-Monit/${version}`,
                             interval: this.interval,
                         },
                         JSON.parse(this.kafkaProducerSaslOptions),
@@ -948,7 +948,7 @@ class Monitor extends BeanModel {
                 log.debug("monitor", `[${this.name}] apicache clear`);
                 apicache.clear();
 
-                await UptimeKumaServer.getInstance().sendMaintenanceListByUserID(this.user_id);
+                await CodeMonitServer.getInstance().sendMaintenanceListByUserID(this.user_id);
 
             } else {
                 bean.important = false;
@@ -1024,7 +1024,7 @@ class Monitor extends BeanModel {
                 await beat();
             } catch (e) {
                 console.trace(e);
-                UptimeKumaServer.errorLog(e, false);
+                CodeMonitServer.errorLog(e, false);
                 log.error("monitor", "Please report to https://github.com/oggynjack/0Code-Monit/issues");
 
                 if (! this.isStop) {
@@ -1351,8 +1351,8 @@ class Monitor extends BeanModel {
                     }
 
                     // Also provide the time in server timezone
-                    heartbeatJSON["timezone"] = await UptimeKumaServer.getInstance().getTimezone();
-                    heartbeatJSON["timezoneOffset"] = UptimeKumaServer.getInstance().getTimezoneOffset();
+                    heartbeatJSON["timezone"] = await CodeMonitServer.getInstance().getTimezone();
+                    heartbeatJSON["timezoneOffset"] = CodeMonitServer.getInstance().getTimezoneOffset();
                     heartbeatJSON["localDateTime"] = dayjs.utc(heartbeatJSON["time"]).tz(heartbeatJSON["timezone"]).format(SQL_DATETIME_FORMAT);
 
                     await Notification.send(JSON.parse(notification.config), msg, monitor.toJSON(preloadData, false), heartbeatJSON);
@@ -1489,7 +1489,7 @@ class Monitor extends BeanModel {
         `, [ monitorID ]);
 
         for (const maintenanceID of maintenanceIDList) {
-            const maintenance = await UptimeKumaServer.getInstance().getMaintenance(maintenanceID);
+            const maintenance = await CodeMonitServer.getInstance().getMaintenance(maintenanceID);
             if (maintenance && await maintenance.isUnderMaintenance()) {
                 return true;
             }

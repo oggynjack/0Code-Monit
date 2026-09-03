@@ -11,7 +11,7 @@ const { Settings } = require("./settings");
 const { UptimeCalculator } = require("./uptime-calculator");
 const dayjs = require("dayjs");
 const { SimpleMigrationServer } = require("./utils/simple-migration-server");
-const KumaColumnCompiler = require("./utils/knex/lib/dialects/mysql2/schema/mysql2-columncompiler");
+const CodeMonitColumnCompiler = require("./utils/knex/lib/dialects/mysql2/schema/mysql2-columncompiler");
 const SqlString = require("sqlstring");
 
 /**
@@ -23,7 +23,7 @@ class Database {
      * Bootstrap database for SQLite
      * @type {string}
      */
-    static templatePath = "./db/kuma.db";
+    static templatePath = "./db/0code-monit.db";
 
     /**
      * Data Dir (Default: ./data)
@@ -44,7 +44,7 @@ class Database {
     static screenshotDir;
 
     /**
-     * SQLite file path (Default: ./data/kuma.db)
+     * SQLite file path (Default: ./data/0code-monit.db)
      * @type {string}
      */
     static sqlitePath;
@@ -137,7 +137,7 @@ class Database {
         // Data Directory (must be end with "/")
         Database.dataDir = process.env.DATA_DIR || args["data-dir"] || "./data/";
 
-        Database.sqlitePath = path.join(Database.dataDir, "kuma.db");
+        Database.sqlitePath = path.join(Database.dataDir, "0code-monit.db");
         if (! fs.existsSync(Database.dataDir)) {
             fs.mkdirSync(Database.dataDir, { recursive: true });
         }
@@ -206,7 +206,7 @@ class Database {
         const { getDialectByNameOrAlias } = require("knex/lib/dialects");
         const mysql2 = getDialectByNameOrAlias("mysql2");
         mysql2.prototype.columnCompiler = function () {
-            return new KumaColumnCompiler(this, ...arguments);
+            return new CodeMonitColumnCompiler(this, ...arguments);
         };
 
         const acquireConnectionTimeout = 120 * 1000;
@@ -243,7 +243,11 @@ Dialect.prototype._driver = () => {
     try {
         return require("@oggynjack/sqlite3");
     } catch (e) {
-        return require("@louislam/sqlite3");
+        try {
+            return require("sqlite3");
+        } catch (_) {
+            return require("@oggynjack/sqlite3");
+        }
     }
 };
 
@@ -260,6 +264,9 @@ Dialect.prototype._driver = () => {
                     idleTimeoutMillis: 120 * 1000,
                     propagateCreateError: false,
                     acquireTimeoutMillis: acquireConnectionTimeout,
+                    afterCreate(conn, done) {
+                        conn.run("PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON;", (err) => done(err, conn));
+                    },
                 }
             };
         } else if (dbConfig.type === "mariadb") {
@@ -305,7 +312,7 @@ Dialect.prototype._driver = () => {
                 connection: {
                     socketPath: embeddedMariaDB.socketPath,
                     user: embeddedMariaDB.username,
-                    database: "kuma",
+                    database: "0code-monit",
                     timezone: "Z",
                     typeCast: function (field, next) {
                         if (field.type === "DATETIME") {
@@ -359,19 +366,23 @@ Dialect.prototype._driver = () => {
      */
     static async initSQLite(testMode, noLog) {
         await R.exec("PRAGMA foreign_keys = ON");
+        await R.exec("PRAGMA busy_timeout = 5000");
         if (testMode) {
             // Change to MEMORY
             await R.exec("PRAGMA journal_mode = MEMORY");
         } else {
-            // Change to WAL
-            await R.exec("PRAGMA journal_mode = WAL");
+            try {
+                // WAL mode provides high concurrency without blocking reads during writes
+                await R.exec("PRAGMA journal_mode = WAL");
+            } catch (walErr) {
+                log.warn("db", "WAL journal_mode unavailable, falling back to DELETE: " + walErr.message);
+                await R.exec("PRAGMA journal_mode = DELETE");
+            }
         }
-        await R.exec("PRAGMA cache_size = -12000");
+        await R.exec("PRAGMA cache_size = -20000");
         await R.exec("PRAGMA auto_vacuum = INCREMENTAL");
 
-        // This ensures that an operating system crash or power failure will not corrupt the database.
-        // FULL synchronous is very safe, but it is also slower.
-        // Read more: https://sqlite.org/pragma.html#pragma_synchronous
+        // NORMAL synchronous is safe in WAL mode and drastically improves throughput
         await R.exec("PRAGMA synchronous = NORMAL");
 
         if (!noLog) {
@@ -405,7 +416,7 @@ Dialect.prototype._driver = () => {
      * @returns {Promise<void>}
      */
     static async patch(port = undefined, hostname = undefined) {
-        // Still need to keep this for old versions of Uptime Kuma
+        // Still need to keep this for old versions of 0Code-Monit
         if (Database.dbConfig.type === "sqlite") {
             await this.patchSqlite();
         }
@@ -435,7 +446,7 @@ Dialect.prototype._driver = () => {
             // Allow missing patch files for downgrade or testing pr.
             if (e.message.includes("the following files are missing:")) {
                 log.warn("db", e.message);
-                log.warn("db", "Database migration failed, you may be downgrading Uptime Kuma.");
+                log.warn("db", "Database migration failed, you may be downgrading 0Code-Monit.");
             } else {
                 log.error("db", "Database migration failed");
                 throw e;
@@ -488,7 +499,7 @@ Dialect.prototype._driver = () => {
                 await Database.close();
 
                 log.error("db", ex);
-                log.error("db", "Start Uptime-Kuma failed due to issue patching the database");
+                log.error("db", "Start 0Code-Monit failed due to issue patching the database");
                 log.error("db", "Please submit a bug report if you still encounter the problem after restart: https://github.com/oggynjack/0Code-Monit/issues");
 
                 process.exit(1);
@@ -530,7 +541,7 @@ Dialect.prototype._driver = () => {
             await Database.close();
 
             log.error("db", ex);
-            log.error("db", "Start Uptime-Kuma failed due to issue patching the database");
+            log.error("db", "Start 0Code-Monit failed due to issue patching the database");
             log.error("db", "Please submit the bug report if you still encounter the problem after restart: https://github.com/oggynjack/0Code-Monit/issues");
 
             process.exit(1);

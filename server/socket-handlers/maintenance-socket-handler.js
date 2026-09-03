@@ -2,9 +2,9 @@ const { checkLogin } = require("../util-server");
 const { log } = require("../../src/util");
 const { R } = require("redbean-node");
 const apicache = require("../modules/apicache");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { CodeMonitServer } = require("../0Code-Monit-server");
 const Maintenance = require("../model/maintenance");
-const server = UptimeKumaServer.getInstance();
+const server = CodeMonitServer.getInstance();
 
 /**
  * Handlers for Maintenance

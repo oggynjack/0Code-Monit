@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div class="modern-homepage">
         <!-- Parallax Background -->
         <div class="parallax-bg">
@@ -14,7 +14,7 @@
                 <div class="nav-content">
                     <div class="logo-section">
 <img src="/icon.svg" width="45" height="45" alt="Logo" class="logo-img" />
-                        <span class="logo-text">0Code Monit</span>
+                        <span class="logo-text">0Code™ Monit</span>
                     </div>
                     <div class="nav-links">
 <router-link to="/docs" class="nav-link">Documentation</router-link>
@@ -181,7 +181,7 @@
                 <div class="footer-content">
                     <div class="footer-brand">
                         <img src="/icon.svg" width="32" height="32" alt="Logo" />
-                        <span class="footer-logo-text">0Code Monit</span>
+                        <span class="footer-logo-text">0Code™ Monit</span>
                         <p class="footer-tagline">Professional website monitoring made simple.</p>
                     </div>
                     <div class="footer-links two-col">
@@ -201,7 +201,8 @@
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <p>© 2025 0Code Monit. All rights reserved.</p>
+                    <p>© 2025 0Code™ Monit. All rights reserved.</p>
+                    <p>0Code™ is a brand under development</p>
                     <router-link to="/dashboard" class="admin-link">Admin Panel</router-link>
                 </div>
             </div>
@@ -999,3 +1000,5 @@ export default {
     }
 }
 </style>
+
+

@@ -155,7 +155,7 @@
                     <div class="footer-left">
                         <div class="footer-brand">
                             <img src="/icon.svg" width="24" height="24" alt="Logo" class="footer-logo" />
-                            <span class="footer-brand-text">0Code Monit</span>
+                            <span class="footer-brand-text">0Code™ Monit</span>
                         </div>
                         <p class="footer-description">Real-time monitoring and status tracking for your services</p>
                     </div>
@@ -168,7 +168,8 @@
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <p>&copy; 2024 0Code Monit. Monitoring made simple.</p>
+                    <p>&copy; 2024 0Code™ Monit. Monitoring made simple.</p>
+                    <p>0Code™ is a brand under development</p>
                 </div>
             </div>
         </footer>

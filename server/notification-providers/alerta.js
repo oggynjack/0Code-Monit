@@ -22,11 +22,11 @@ class Alerta extends NotificationProvider {
                 environment: notification.alertaEnvironment,
                 severity: "critical",
                 correlate: [],
-                service: [ "UptimeKuma" ],
+                service: [ "0Code-Monit" ],
                 value: "Timeout",
-                tags: [ "uptimekuma" ],
+                tags: [ "0Code-Monit" ],
                 attributes: {},
-                origin: "uptimekuma",
+                origin: "0Code-Monit",
                 type: "exceptionAlert",
             };
 
@@ -36,7 +36,7 @@ class Alerta extends NotificationProvider {
                 let postData = Object.assign({
                     event: "msg",
                     text: msg,
-                    group: "uptimekuma-msg",
+                    group: "0Code-Monit-msg",
                     resource: "Message",
                 }, data);
 
@@ -45,7 +45,7 @@ class Alerta extends NotificationProvider {
                 let datadup = Object.assign( {
                     correlate: [ "service_up", "service_down" ],
                     event: monitorJSON["type"],
-                    group: "uptimekuma-" + monitorJSON["type"],
+                    group: "0Code-Monit-" + monitorJSON["type"],
                     resource: monitorJSON["name"],
                 }, data );
 

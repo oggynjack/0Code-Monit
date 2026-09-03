@@ -13,7 +13,7 @@ const childProcessAsync = require("promisify-child-process");
 const path = require("path");
 const axios = require("axios");
 const { isSSL, sslKey, sslCert, sslKeyPassphrase } = require("./config");
-// DO NOT IMPORT HERE IF THE MODULES USED `UptimeKumaServer.getInstance()`, put at the bottom of this file instead.
+// DO NOT IMPORT HERE IF THE MODULES USED `CodeMonitServer.getInstance()`, put at the bottom of this file instead.
 
 /**
  * `module.exports` (alias: `server`) should be inside this class, in order to avoid circular dependency issue.
@@ -548,7 +548,6 @@ class CodeMonitServer {
 
 module.exports = {
     CodeMonitServer,
-    UptimeKumaServer: CodeMonitServer
 };
 
 // Must be at the end to avoid circular dependencies

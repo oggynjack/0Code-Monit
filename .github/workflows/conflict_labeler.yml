@@ -13,7 +13,7 @@ jobs:
   label:
     name: Labeling
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'louislam/uptime-kuma' }}
+    if: ${{ github.repository == 'oggynjack/0Code-Monit' }}
     permissions:
       contents: read
       pull-requests: write
