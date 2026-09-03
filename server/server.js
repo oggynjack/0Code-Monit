@@ -766,6 +766,13 @@ let uri = `otpauth://totp/0Code%20Monit:${user.username}?secret=${encodedSecret}
 
                 bean.import(monitor);
                 bean.user_id = socket.userID;
+                if (!bean.method) bean.method = "GET";
+                if (!bean.accepted_statuscodes_json) bean.accepted_statuscodes_json = JSON.stringify(["200-299"]);
+                if (!bean.conditions) bean.conditions = JSON.stringify([]);
+                if (bean.interval === undefined || bean.interval === null) bean.interval = 60;
+                if (bean.retry_interval === undefined || bean.retry_interval === null) bean.retry_interval = 0;
+                if (bean.maxretries === undefined || bean.maxretries === null) bean.maxretries = 0;
+                if (bean.weight === undefined || bean.weight === null) bean.weight = 2000;
 
                 bean.validate();
 

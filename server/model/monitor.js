@@ -18,7 +18,6 @@ const { Proxy } = require("../proxy");
 const { demoMode } = require("../config");
 const version = require("../../package.json").version;
 const apicache = require("../modules/apicache");
-const { CodeMonitServer } = require("../0Code-Monit-server");
 const { DockerHost } = require("../docker");
 const Gamedig = require("gamedig");
 const jwt = require("jsonwebtoken");

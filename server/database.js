@@ -445,8 +445,10 @@ Dialect.prototype._driver = () => {
 
         let hasTable = await R.hasTable("docker_host");
         if (!hasTable) {
+            await R.exec("SET foreign_key_checks = 0;");
             const { createTables } = require("../db/knex_init_db");
             await createTables();
+            await R.exec("SET foreign_key_checks = 1;");
         } else {
             log.debug("db", "MariaDB database already exists");
         }

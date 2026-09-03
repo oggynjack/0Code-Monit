@@ -83,13 +83,13 @@ async function createTables() {
         table.boolean("ignore_tls").notNullable().defaultTo(false);
         table.boolean("upside_down").notNullable().defaultTo(false);
         table.integer("maxredirects").notNullable().defaultTo(10);
-        table.text("accepted_statuscodes_json").notNullable().defaultTo("[\"200-299\"]");
+        table.string("accepted_statuscodes_json", 255).defaultTo("[\"200-299\"]");
         table.string("dns_resolve_type", 5);
         table.string("dns_resolve_server", 255);
         table.string("dns_last_result", 255);
         table.integer("retry_interval").notNullable().defaultTo(0);
         table.string("push_token", 20).defaultTo(null);
-        table.text("method").notNullable().defaultTo("GET");
+        table.string("method", 20).defaultTo("GET");
         table.text("body").defaultTo(null);
         table.text("headers").defaultTo(null);
         table.text("basic_auth_user").defaultTo(null);

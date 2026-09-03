@@ -256,7 +256,11 @@ class CodeMonitServer {
             active: monitor.active,
             name: monitor.name,
         }));
-        const preloadData = await Monitor.preparePreloadData(monitorData);
+        const MonitorModel = require("./model/monitor");
+        let preloadData = {};
+        if (typeof MonitorModel?.preparePreloadData === "function") {
+            preloadData = await MonitorModel.preparePreloadData(monitorData);
+        }
 
         const result = {};
         monitorList.forEach(monitor => result[monitor.id] = monitor.toJSON(preloadData));
