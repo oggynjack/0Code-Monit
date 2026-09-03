@@ -468,19 +468,22 @@ Dialect.prototype._driver = () => {
         // https://knexjs.org/guide/migrations.html
         // https://gist.github.com/NigelEarle/70db130cc040cc2868555b29a0278261
         try {
-            // Disable foreign key check for SQLite
-            // Known issue of knex: https://github.com/drizzle-team/drizzle-orm/issues/1813
+            // Disable foreign key checks during migrations
             if (Database.dbConfig.type === "sqlite") {
                 await R.exec("PRAGMA foreign_keys = OFF");
+            } else if (Database.dbConfig.type.endsWith("mariadb")) {
+                await R.exec("SET foreign_key_checks = 0;");
             }
 
             await R.knex.migrate.latest({
                 directory: Database.knexMigrationsPath,
             });
 
-            // Enable foreign key check for SQLite
+            // Re-enable foreign key checks
             if (Database.dbConfig.type === "sqlite") {
                 await R.exec("PRAGMA foreign_keys = ON");
+            } else if (Database.dbConfig.type.endsWith("mariadb")) {
+                await R.exec("SET foreign_key_checks = 1;");
             }
 
             await this.migrateAggregateTable(port, hostname);

@@ -9,11 +9,10 @@ class CodeMonitColumnCompiler extends ColumnCompilerMySQL {
      * @returns {string|void} Default value (Don't understand why it can return void or string, but it's the original code, lol)
      */
     defaultTo(value) {
-        if (this.type === "text" && typeof value === "string") {
-            log.debug("defaultTo", `${this.args[0]}: ${this.type} ${value} ${typeof value}`);
-            // MySQL 8.0 is required and only if the value is written as an expression: https://dev.mysql.com/doc/refman/8.0/en/data-type-defaults.html
-            // MariaDB 10.2 is required: https://mariadb.com/kb/en/text/
-            return `default (${formatDefault(value, this.type, this.client)})`;
+        if (this.type === "text") {
+            // TiDB and standard MySQL do not support default expressions on TEXT columns.
+            // JavaScript models already initialize defaults on insert.
+            return "";
         }
         return super.defaultTo.apply(this, arguments);
     }
