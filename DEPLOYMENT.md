@@ -14,7 +14,7 @@ This guide covers deploying 0Code-Monit on **Render.com**, Docker, and local PM2
 1. In Render, click **New +** -> **Web Service**.
 2. Set **Runtime**: `Node`.
 3. Set **Plan**: `Free`.
-4. Set **Build Command**: `npm install --legacy-peer-deps && npm run build`
+4. Set **Build Command**: `npm install --include=dev --legacy-peer-deps && npm run build`
 5. Set **Start Command**: `node server/server.js`
 6. Set **Health Check Path**: `/api/health`
 7. Set **Environment Variables**:
