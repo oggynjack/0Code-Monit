@@ -2,34 +2,30 @@
 
 This guide covers deploying 0Code-Monit on **Render.com**, Docker, and local PM2 with reverse proxy.
 
-## 🚀 Deploying to Render.com (Recommended Cloud Deployment)
+## 🚀 Deploying to Render.com (100% Free Tier - Zero Cost)
 
-### Method 1: Render Blueprint (1-Click)
-1. Push your repository to GitHub.
+### Method 1: Render Blueprint (1-Click - 100% Free)
+1. Push this repository to your GitHub account.
 2. In your Render Dashboard, click **New +** -> **Blueprint**.
-3. Connect your `0Code-Monit` repository. Render will automatically detect [`render.yaml`](file:///d:/Projects/0code-monit/render.yaml).
-4. Render will provision:
-   - Web Service with Node.js runtime
-   - 10GB Persistent Disk mounted at `/app/data`
-   - Automated health checks on `/api/health`
-   - SSL certificates on your custom domain
+3. Select your `0Code-Monit` repository. Render automatically reads [`render.yaml`](file:///d:/Projects/0code-monit/render.yaml) on the **Free Plan** (`plan: free`).
+4. Click **Apply**. Render will build and launch your application at zero cost!
 
-### Method 2: Manual Web Service on Render
-1. Create a new **Web Service** on Render.
+### Method 2: Manual Web Service on Render (Free)
+1. In Render, click **New +** -> **Web Service**.
 2. Set **Runtime**: `Node`.
-3. Set **Build Command**: `npm install --legacy-peer-deps && npm run build`
-4. Set **Start Command**: `node server/server.js`
-5. Under **Disks**, add a persistent disk:
-   - **Name**: `0code-monit-data`
-   - **Mount Path**: `/app/data`
-   - **Size**: 10 GB
-6. Set **Environment Variables**:
+3. Set **Plan**: `Free`.
+4. Set **Build Command**: `npm install --legacy-peer-deps && npm run build`
+5. Set **Start Command**: `node server/server.js`
+6. Set **Health Check Path**: `/api/health`
+7. Set **Environment Variables**:
    - `NODE_ENV`: `production`
-   - `DATA_DIR`: `/app/data`
    - `CODE_MONIT_WS_ORIGIN_CHECK`: `cors-like`
-   - `GOOGLE_CLIENT_ID`: (Optional for Google OAuth)
-   - `GOOGLE_CLIENT_SECRET`: (Optional for Google OAuth)
-   - `GOOGLE_REDIRECT_URI`: `https://<your-render-subdomain>.onrender.com/auth/google/callback`
+   - *(Optional)* If using a free external DB (like Neon, Supabase, or Render Free Postgres):
+     - `DB_TYPE`: `postgres` (or `mariadb`)
+     - `DB_HOST`: `your-db-host`
+     - `DB_USER`: `your-user`
+     - `DB_PASSWORD`: `your-pass`
+     - `DB_NAME`: `your-db-name`
 
 ---
 

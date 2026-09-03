@@ -211,14 +211,27 @@ class Database {
 
         const acquireConnectionTimeout = 120 * 1000;
         let dbConfig;
-        try {
-            dbConfig = this.readDBConfig();
-            Database.dbConfig = dbConfig;
-        } catch (err) {
-            log.warn("db", err.message);
+
+        if (process.env.DB_TYPE) {
             dbConfig = {
-                type: "sqlite",
+                type: process.env.DB_TYPE,
+                hostname: process.env.DB_HOST || process.env.DB_HOSTNAME || "127.0.0.1",
+                port: parseInt(process.env.DB_PORT, 10) || (process.env.DB_TYPE === "postgres" ? 5432 : 3306),
+                username: process.env.DB_USER || process.env.DB_USERNAME || "root",
+                password: process.env.DB_PASSWORD || "",
+                dbName: process.env.DB_NAME || process.env.DB_DATABASE || "0code-monit",
             };
+            Database.dbConfig = dbConfig;
+        } else {
+            try {
+                dbConfig = this.readDBConfig();
+                Database.dbConfig = dbConfig;
+            } catch (err) {
+                log.warn("db", err.message);
+                dbConfig = {
+                    type: "sqlite",
+                };
+            }
         }
 
         let config = {};

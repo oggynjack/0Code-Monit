@@ -1,25 +1,21 @@
 # ===============================================
-# Render.com Blueprint for 0Code-Monit
+# Render.com Blueprint for 0Code-Monit (100% FREE TIER)
 # https://render.com/docs/blueprint-spec
 # ===============================================
 services:
   - type: web
     name: 0code-monit
     runtime: node
-    plan: starter
+    plan: free
     region: oregon
     buildCommand: npm install --legacy-peer-deps && npm run build
     startCommand: node server/server.js
     healthCheckPath: /api/health
     autoDeploy: true
-    disk:
-      name: 0code-monit-data
-      mountPath: /app/data
-      sizeGB: 10
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATA_DIR
-        value: /app/data
+        value: ./data
       - key: CODE_MONIT_WS_ORIGIN_CHECK
         value: cors-like
