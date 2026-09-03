@@ -212,19 +212,40 @@ class Database {
         const acquireConnectionTimeout = 120 * 1000;
         let dbConfig;
 
-        if (process.env.DB_TYPE) {
+        if (process.env.DATABASE_URL || process.env.MYSQL_URL) {
+            const urlStr = process.env.DATABASE_URL || process.env.MYSQL_URL;
+            try {
+                const parsed = new URL(urlStr);
+                dbConfig = {
+                    type: "mariadb",
+                    hostname: parsed.hostname,
+                    port: parseInt(parsed.port, 10) || 3306,
+                    username: decodeURIComponent(parsed.username || "root"),
+                    password: decodeURIComponent(parsed.password || ""),
+                    dbName: parsed.pathname.replace(/^\//, "") || "0code-monit",
+                };
+                Database.dbConfig = dbConfig;
+            } catch (err) {
+                log.error("db", "Failed to parse DATABASE_URL: " + err.message);
+            }
+        }
+
+        if (!dbConfig && process.env.DB_TYPE) {
             dbConfig = {
-                type: process.env.DB_TYPE,
+                type: process.env.DB_TYPE === "mysql" ? "mariadb" : process.env.DB_TYPE,
                 hostname: process.env.DB_HOST || process.env.DB_HOSTNAME || "127.0.0.1",
-                port: parseInt(process.env.DB_PORT, 10) || (process.env.DB_TYPE === "postgres" ? 5432 : 3306),
+                port: parseInt(process.env.DB_PORT, 10) || 3306,
                 username: process.env.DB_USER || process.env.DB_USERNAME || "root",
                 password: process.env.DB_PASSWORD || "",
                 dbName: process.env.DB_NAME || process.env.DB_DATABASE || "0code-monit",
             };
             Database.dbConfig = dbConfig;
-        } else {
+        }
+
+        if (!dbConfig) {
             try {
                 dbConfig = this.readDBConfig();
+                if (dbConfig.type === "mysql") dbConfig.type = "mariadb";
                 Database.dbConfig = dbConfig;
             } catch (err) {
                 log.warn("db", err.message);
@@ -287,16 +308,19 @@ Dialect.prototype._driver = () => {
                     },
                 }
             };
-        } else if (dbConfig.type === "mariadb") {
-            const connection = await mysql.createConnection({
+        } else if (dbConfig.type === "mariadb" || dbConfig.type === "mysql") {
+            const mysqlOptions = {
                 host: dbConfig.hostname,
                 port: dbConfig.port,
                 user: dbConfig.username,
                 password: dbConfig.password,
-            });
+            };
+            if (process.env.DB_SSL === "true" || dbConfig.hostname.includes("tidb") || dbConfig.hostname.includes("aivencloud") || dbConfig.hostname.includes("clever-cloud")) {
+                mysqlOptions.ssl = { rejectUnauthorized: false };
+            }
 
-                    // Set to true, so for example "0code.monit", becomes `0code.monit`, not `0code`.`monit`
-            // Doc: https://github.com/mysqljs/sqlstring?tab=readme-ov-file#escaping-query-identifiers
+            const connection = await mysql.createConnection(mysqlOptions);
+
             const escapedDBName = SqlString.escapeId(dbConfig.dbName, true);
 
             await connection.execute("CREATE DATABASE IF NOT EXISTS " + escapedDBName + " CHARACTER SET utf8mb4");
@@ -311,6 +335,7 @@ Dialect.prototype._driver = () => {
                     password: dbConfig.password,
                     database: dbConfig.dbName,
                     timezone: "Z",
+                    ssl: mysqlOptions.ssl,
                     typeCast: function (field, next) {
                         if (field.type === "DATETIME") {
                             // Do not perform timezone conversion
