@@ -5,14 +5,31 @@ const jwt = require("jsonwebtoken");
 const { R } = require("redbean-node");
 const { log } = require("../../src/util");
 
-function getOAuthClient() {
+function getCredentials() {
     const clientId = process.env.GOOGLE_CLIENT_ID || "";
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET || "";
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI || (
-        process.env.NODE_ENV === "production"
-            ? "https://monit.0code.uk/auth/google/callback"
-            : "http://localhost:3000/auth/google/callback"
-    );
+    return { clientId, clientSecret };
+}
+
+function getRedirectUri(req) {
+    if (process.env.GOOGLE_REDIRECT_URI) {
+        return process.env.GOOGLE_REDIRECT_URI;
+    }
+    if (req) {
+        const proto = req.headers["x-forwarded-proto"] || req.protocol || (process.env.NODE_ENV === "production" ? "https" : "http");
+        const host = req.headers["x-forwarded-host"] || req.get("host");
+        if (host) {
+            return `${proto}://${host}/auth/google/callback`;
+        }
+    }
+    return process.env.NODE_ENV === "production"
+        ? "https://monit.0code.uk/auth/google/callback"
+        : "http://localhost:3000/auth/google/callback";
+}
+
+function getOAuthClient(req) {
+    const { clientId, clientSecret } = getCredentials();
+    const redirectUri = getRedirectUri(req);
 
     if (!clientId || !clientSecret) {
         return null;
@@ -22,9 +39,9 @@ function getOAuthClient() {
 
 // Initiate Google OAuth flow
 router.get("/auth/google", (req, res) => {
-    const oauth2Client = getOAuthClient();
+    const oauth2Client = getOAuthClient(req);
     if (!oauth2Client) {
-        log.warn("google-auth", "Google OAuth not configured: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing");
+        log.warn("google-auth", "Google OAuth not configured: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET missing");
         return res.redirect("/public-login?error=oauth_not_configured");
     }
 
@@ -37,15 +54,17 @@ router.get("/auth/google", (req, res) => {
         prompt: "consent"
     });
 
+    log.info("google-auth", `Initiating Google OAuth with redirect_uri: ${getRedirectUri(req)}`);
     res.redirect(authorizeUrl);
 });
 
 // Google OAuth callback
 router.get("/auth/google/callback", async (req, res) => {
     try {
-        const oauth2Client = getOAuthClient();
+        const { clientId } = getCredentials();
+        const oauth2Client = getOAuthClient(req);
         if (!oauth2Client) {
-            throw new Error("Google OAuth credentials are not configured in environment variables");
+            throw new Error("Google OAuth credentials are not configured");
         }
 
         const { code } = req.query;
@@ -60,7 +79,7 @@ router.get("/auth/google/callback", async (req, res) => {
         // Get user info
         const ticket = await oauth2Client.verifyIdToken({
             idToken: tokens.id_token,
-            audience: process.env.GOOGLE_CLIENT_ID
+            audience: clientId
         });
 
         const payload = ticket.getPayload();
@@ -110,8 +129,8 @@ router.get("/auth/google/callback", async (req, res) => {
         }
 
     } catch (error) {
-        log.error("google-auth", `OAuth error: ${error.message}`);
-        res.redirect("/public-login?error=auth_failed");
+        log.error("google-auth", `OAuth callback error: ${error.message}`);
+        res.redirect(`/public-login?error=${encodeURIComponent(error.message || "auth_failed")}`);
     }
 });
 

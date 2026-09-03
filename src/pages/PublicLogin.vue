@@ -7,6 +7,10 @@
                 <p class="text-muted">Monitor up to 3 websites for free</p>
             </div>
 
+            <div v-if="errorMessage" class="alert alert-danger mb-3" role="alert">
+                {{ errorMessage }}
+            </div>
+
             <div class="d-grid gap-3">
                 <button class="btn btn-google btn-lg" @click="loginWithGoogle">
                     <svg class="me-2" width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
@@ -40,9 +44,23 @@
 <script>
 export default {
     name: "PublicLogin",
+    data() {
+        return {
+            errorMessage: "",
+        };
+    },
+    mounted() {
+        const error = this.$route.query.error;
+        if (error) {
+            if (error === "oauth_not_configured") {
+                this.errorMessage = "Google OAuth is not configured on this instance.";
+            } else {
+                this.errorMessage = "Login failed: " + error;
+            }
+        }
+    },
     methods: {
         loginWithGoogle() {
-            // Redirect to Google OAuth endpoint
             window.location.href = "/auth/google";
         }
     }
